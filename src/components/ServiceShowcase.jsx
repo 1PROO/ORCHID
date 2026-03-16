@@ -25,7 +25,7 @@ const ServiceShowcase = ({ onBookNow }) => {
           style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 5vw, 4rem)' }}
         >
           <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', color: 'var(--accent)', marginBottom: '1rem' }}>خدماتنا الاحترافية</h2>
-          <div style={{ width: '60px', height: '3px', background: 'linear-gradient(90deg, transparent, var(--accent), transparent)', margin: '0 auto' }}></div>
+          <div style={{ width: '60px', height: '3px', background: 'linear-gradient(90deg, transparent, var(--accent), var(--accent-secondary), transparent)', margin: '0 auto' }}></div>
         </motion.div>
 
         {categories.map((category) => (
@@ -47,8 +47,8 @@ const ServiceShowcase = ({ onBookNow }) => {
                 width: '10px', 
                 height: '10px', 
                 borderRadius: '50%', 
-                background: 'var(--accent)',
-                boxShadow: '0 0 8px rgba(212, 175, 55, 0.5)',
+                background: 'var(--gradient-accent)',
+                boxShadow: '0 0 8px rgba(0, 212, 255, 0.5)',
                 flexShrink: 0
               }}></span>
               {category.name}

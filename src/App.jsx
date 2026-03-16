@@ -35,7 +35,9 @@ function App() {
             fontFamily: 'Inter', 
             fontWeight: 800, 
             letterSpacing: '2px', 
-            color: 'var(--accent)',
+            background: 'var(--gradient-accent)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             fontSize: 'clamp(1.25rem, 3vw, 1.75rem)'
           }}>ORCHID</h2>
           <a href="https://www.facebook.com/Orchid.Hands.Of.Care" target="_blank" rel="noreferrer" style={{ color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '0.9rem' }}>

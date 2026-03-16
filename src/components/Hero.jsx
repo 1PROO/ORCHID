@@ -10,10 +10,7 @@ const Hero = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.2, delayChildren: 0.1 },
     },
   };
 
@@ -29,51 +26,36 @@ const Hero = () => {
       overflow: 'hidden',
       padding: 'clamp(1rem, 3vw, 2rem) 0'
     }}>
-      {/* Decorative background glow */}
+      {/* Cyan glow */}
       <div style={{
-        position: 'absolute',
-        top: '-20%',
-        left: '-10%',
-        width: '50vw',
-        height: '50vw',
-        background: 'radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%)',
-        filter: 'blur(60px)',
-        zIndex: 0
-      }}></div>
+        position: 'absolute', top: '-20%', right: '-10%',
+        width: '50vw', height: '50vw',
+        background: 'radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%)',
+        filter: 'blur(60px)', zIndex: 0
+      }} />
 
-      {/* Second glow */}
+      {/* Magenta glow */}
       <div style={{
-        position: 'absolute',
-        bottom: '-30%',
-        right: '-10%',
-        width: '40vw',
-        height: '40vw',
-        background: 'radial-gradient(circle, rgba(212, 175, 55, 0.03) 0%, transparent 70%)',
-        filter: 'blur(80px)',
-        zIndex: 0
-      }}></div>
+        position: 'absolute', bottom: '-30%', left: '-10%',
+        width: '40vw', height: '40vw',
+        background: 'radial-gradient(circle, rgba(224, 64, 251, 0.06) 0%, transparent 70%)',
+        filter: 'blur(80px)', zIndex: 0
+      }} />
 
       <motion.div 
         className="container" 
         style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 1rem' }}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        variants={containerVariants} initial="hidden" animate="visible"
       >
         <motion.div variants={itemVariants} style={{ marginBottom: '1.25rem' }}>
           <span style={{ 
-            color: 'var(--accent)', 
-            letterSpacing: '3px', 
-            textTransform: 'uppercase', 
-            fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)', 
-            fontWeight: 600,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
+            color: 'var(--accent)', letterSpacing: '3px', textTransform: 'uppercase', 
+            fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)', fontWeight: 600,
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.4rem 1.25rem',
-            border: '1px solid rgba(212, 175, 55, 0.3)',
+            border: '1px solid rgba(0, 212, 255, 0.3)',
             borderRadius: '2rem',
-            background: 'rgba(212, 175, 55, 0.05)'
+            background: 'rgba(0, 212, 255, 0.05)'
           }}>
             <Sparkles size={14} />
             ORCHID PREMIUM
@@ -84,27 +66,25 @@ const Hero = () => {
           variants={itemVariants}
           style={{ 
             fontSize: 'clamp(1.75rem, 5vw, 4rem)', 
-            marginBottom: '1.25rem', 
-            lineHeight: 1.25,
-            background: 'linear-gradient(to left, #ffffff, #b0b0b0)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            marginBottom: '1.25rem', lineHeight: 1.25,
+            background: 'linear-gradient(to left, #ffffff, #c0c0c0)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             padding: '0 0.5rem'
           }}
         >
-          طريقك نحو <span style={{ color: 'var(--accent)', WebkitTextFillColor: 'var(--accent)' }}>صحة أفضل</span><br/> وأداء رياضي متميز
+          طريقك نحو <span style={{ 
+            background: 'var(--gradient-accent)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent' 
+          }}>صحة أفضل</span><br/> وأداء رياضي متميز
         </motion.h1>
         
         <motion.p 
           variants={itemVariants}
           style={{ 
-            fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', 
-            color: 'var(--text-muted)', 
-            marginBottom: '2rem', 
-            maxWidth: '700px', 
-            margin: '0 auto 2rem',
-            lineHeight: 1.8,
-            padding: '0 0.5rem'
+            fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', color: 'var(--text-muted)', 
+            marginBottom: '2rem', maxWidth: '700px', margin: '0 auto 2rem',
+            lineHeight: 1.8, padding: '0 0.5rem'
           }}
         >
           نقدم حلولاً متكاملة ومصممة خصيصاً لك في الجلسات العلاجية، برامج التغذية، والتدريب الشخصي تحت إشراف نخبة من المتخصصين.
@@ -112,23 +92,19 @@ const Hero = () => {
         
         <motion.div variants={itemVariants}>
           <motion.button 
-            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(212, 175, 55, 0.4)' }}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0, 212, 255, 0.3), 0 0 60px rgba(224, 64, 251, 0.2)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/booking')}
             style={{ 
               padding: 'clamp(0.9rem, 2vw, 1.2rem) clamp(2rem, 5vw, 4rem)', 
-              fontSize: 'clamp(0.95rem, 2vw, 1.2rem)', 
-              fontWeight: 700, 
-              color: 'var(--bg-main)',
-              background: 'linear-gradient(135deg, var(--accent) 0%, #b89326 100%)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              border: 'none',
-              borderRadius: '3rem',
-              boxShadow: '0 4px 20px rgba(212, 175, 55, 0.25)',
-              cursor: 'pointer',
-              fontFamily: 'inherit'
+              fontSize: 'clamp(0.95rem, 2vw, 1.2rem)', fontWeight: 700, 
+              color: '#fff',
+              background: 'var(--gradient-accent)',
+              backgroundSize: '200% 200%',
+              animation: 'gradientFlow 4s ease infinite',
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+              border: 'none', borderRadius: '3rem', cursor: 'pointer', fontFamily: 'inherit',
+              boxShadow: '0 4px 20px rgba(0, 212, 255, 0.25), 0 4px 20px rgba(224, 64, 251, 0.15)'
             }}
           >
             احجز استشارتك الآن

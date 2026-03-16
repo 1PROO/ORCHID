@@ -25,97 +25,60 @@ const Navbar = () => {
       zIndex: 100,
       flexWrap: 'wrap'
     }}>
-      {/* Logo */}
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
         <img src={logo} alt="ORCHID Logo" style={{ height: '36px' }} />
         <span style={{ 
-          fontFamily: 'Inter', 
-          fontWeight: 800, 
-          fontSize: '1.25rem',
+          fontFamily: 'Inter', fontWeight: 800, fontSize: '1.25rem',
           letterSpacing: '2px',
-          color: 'var(--accent)'
+          background: 'var(--gradient-accent)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
         }}>ORCHID</span>
       </Link>
 
-      {/* Desktop Links */}
       <div className="nav-desktop" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-        <Link to="/#services" onClick={() => { if (window.location.pathname === '/') { document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }); } }}
-          style={{ color: 'var(--text-main)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>خدماتنا</Link>
+        <Link to="/" style={{ color: 'var(--text-main)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}>خدماتنا</Link>
         <a href="https://www.facebook.com/Orchid.Hands.Of.Care" target="_blank" rel="noreferrer" style={{ 
-          color: 'var(--accent)', 
-          display: 'flex', 
-          alignItems: 'center' 
+          color: 'var(--accent)', display: 'flex', alignItems: 'center' 
         }}>
           <Facebook size={22} />
         </a>
         <button onClick={handleBookClick} style={{ 
-          background: 'linear-gradient(135deg, var(--accent) 0%, #b89326 100%)', 
-          color: 'var(--bg-main)', 
-          padding: '0.5rem 1.5rem', 
-          borderRadius: '2rem',
-          fontWeight: 700,
-          fontSize: '0.9rem',
-          cursor: 'pointer',
-          border: 'none'
+          background: 'var(--gradient-accent)',
+          backgroundSize: '200% 200%',
+          animation: 'gradientFlow 4s ease infinite',
+          color: '#fff', padding: '0.5rem 1.5rem', 
+          borderRadius: '2rem', fontWeight: 700, fontSize: '0.9rem',
+          cursor: 'pointer', border: 'none'
         }}>احجز الآن</button>
       </div>
 
-      {/* Mobile hamburger */}
-      <button 
-        className="nav-mobile-toggle"
+      <button className="nav-mobile-toggle"
         onClick={() => setMobileOpen(!mobileOpen)}
-        style={{ 
-          display: 'none', 
-          color: 'var(--accent)', 
-          background: 'none', 
-          border: 'none', 
-          cursor: 'pointer',
-          padding: '0.25rem'
-        }}
+        style={{ display: 'none', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
         aria-label="Toggle Menu"
       >
         {mobileOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
 
-      {/* Mobile dropdown */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            className="nav-mobile-menu"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+          <motion.div className="nav-mobile-menu"
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             style={{
-              width: '100%',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem',
-              paddingTop: '1rem',
-              borderTop: '1px solid var(--border-color)',
-              marginTop: '0.75rem'
+              width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.75rem',
+              paddingTop: '1rem', borderTop: '1px solid var(--border-color)', marginTop: '0.75rem'
             }}
           >
             <Link to="/" onClick={() => setMobileOpen(false)} style={{ color: 'var(--text-main)', textDecoration: 'none', fontWeight: 500, padding: '0.5rem 0', fontSize: '1.05rem' }}>الرئيسية</Link>
             <a href="https://www.facebook.com/Orchid.Hands.Of.Care" target="_blank" rel="noreferrer" style={{ 
-              color: 'var(--accent)', 
-              display: 'flex', 
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 0'
+              color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0'
             }}>
               <Facebook size={20} /> تابعنا على فيسبوك
             </a>
             <button onClick={handleBookClick} style={{ 
-              background: 'linear-gradient(135deg, var(--accent) 0%, #b89326 100%)', 
-              color: 'var(--bg-main)', 
-              padding: '0.75rem', 
-              borderRadius: '1rem',
-              fontWeight: 700,
-              fontSize: '1rem',
-              textAlign: 'center',
-              cursor: 'pointer',
-              border: 'none'
+              background: 'var(--gradient-accent)', color: '#fff', 
+              padding: '0.75rem', borderRadius: '1rem', fontWeight: 700, fontSize: '1rem',
+              textAlign: 'center', cursor: 'pointer', border: 'none'
             }}>احجز الآن</button>
           </motion.div>
         )}
