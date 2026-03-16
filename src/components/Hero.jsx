@@ -1,7 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -22,7 +26,8 @@ const Hero = () => {
     <section className="hero" style={{ 
       background: 'radial-gradient(circle at top, var(--primary-light) 0%, var(--bg-main) 70%)',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      padding: 'clamp(1rem, 3vw, 2rem) 0'
     }}>
       {/* Decorative background glow */}
       <div style={{
@@ -36,26 +41,41 @@ const Hero = () => {
         zIndex: 0
       }}></div>
 
+      {/* Second glow */}
+      <div style={{
+        position: 'absolute',
+        bottom: '-30%',
+        right: '-10%',
+        width: '40vw',
+        height: '40vw',
+        background: 'radial-gradient(circle, rgba(212, 175, 55, 0.03) 0%, transparent 70%)',
+        filter: 'blur(80px)',
+        zIndex: 0
+      }}></div>
+
       <motion.div 
         className="container" 
-        style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}
+        style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '0 1rem' }}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} style={{ marginBottom: '1rem' }}>
+        <motion.div variants={itemVariants} style={{ marginBottom: '1.25rem' }}>
           <span style={{ 
             color: 'var(--accent)', 
-            letterSpacing: '4px', 
+            letterSpacing: '3px', 
             textTransform: 'uppercase', 
-            fontSize: '1rem', 
+            fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)', 
             fontWeight: 600,
-            display: 'inline-block',
-            padding: '0.5rem 1.5rem',
-            border: '1px solid var(--accent)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.4rem 1.25rem',
+            border: '1px solid rgba(212, 175, 55, 0.3)',
             borderRadius: '2rem',
             background: 'rgba(212, 175, 55, 0.05)'
           }}>
+            <Sparkles size={14} />
             ORCHID PREMIUM
           </span>
         </motion.div>
@@ -63,13 +83,13 @@ const Hero = () => {
         <motion.h1 
           variants={itemVariants}
           style={{ 
-            fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', 
-            marginBottom: '1.5rem', 
-            lineHeight: 1.2,
-            background: 'linear-gradient(to left, #ffffff, #a0a0a0)',
+            fontSize: 'clamp(1.75rem, 5vw, 4rem)', 
+            marginBottom: '1.25rem', 
+            lineHeight: 1.25,
+            background: 'linear-gradient(to left, #ffffff, #b0b0b0)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            textShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            padding: '0 0.5rem'
           }}
         >
           طريقك نحو <span style={{ color: 'var(--accent)', WebkitTextFillColor: 'var(--accent)' }}>صحة أفضل</span><br/> وأداء رياضي متميز
@@ -78,39 +98,41 @@ const Hero = () => {
         <motion.p 
           variants={itemVariants}
           style={{ 
-            fontSize: 'clamp(1rem, 2vw, 1.25rem)', 
+            fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', 
             color: 'var(--text-muted)', 
-            marginBottom: '3rem', 
-            maxWidth: '800px', 
-            margin: '0 auto 3rem',
-            lineHeight: 1.8
+            marginBottom: '2rem', 
+            maxWidth: '700px', 
+            margin: '0 auto 2rem',
+            lineHeight: 1.8,
+            padding: '0 0.5rem'
           }}
         >
           نقدم حلولاً متكاملة ومصممة خصيصاً لك في الجلسات العلاجية، برامج التغذية، والتدريب الشخصي تحت إشراف نخبة من المتخصصين.
         </motion.p>
         
         <motion.div variants={itemVariants}>
-          <motion.a 
-            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(212, 175, 55, 0.4)' }}
+          <motion.button 
+            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(212, 175, 55, 0.4)' }}
             whileTap={{ scale: 0.95 }}
-            href="#booking" 
-            className="glass-card" 
+            onClick={() => navigate('/booking')}
             style={{ 
-              padding: '1.2rem 4rem', 
-              fontSize: '1.25rem', 
+              padding: 'clamp(0.9rem, 2vw, 1.2rem) clamp(2rem, 5vw, 4rem)', 
+              fontSize: 'clamp(0.95rem, 2vw, 1.2rem)', 
               fontWeight: 700, 
               color: 'var(--bg-main)',
               background: 'linear-gradient(135deg, var(--accent) 0%, #b89326 100%)',
-              textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.75rem',
+              gap: '0.5rem',
               border: 'none',
-              borderRadius: '3rem'
+              borderRadius: '3rem',
+              boxShadow: '0 4px 20px rgba(212, 175, 55, 0.25)',
+              cursor: 'pointer',
+              fontFamily: 'inherit'
             }}
           >
             احجز استشارتك الآن
-          </motion.a>
+          </motion.button>
         </motion.div>
       </motion.div>
     </section>
