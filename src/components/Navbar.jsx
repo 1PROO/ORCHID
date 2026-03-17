@@ -25,8 +25,8 @@ const Navbar = () => {
       zIndex: 100,
       flexWrap: 'wrap'
     }}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-        <img src={logo} alt="ORCHID Logo" style={{ height: '36px' }} />
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', textDecoration: 'none' }}>
+        <img src={logo} alt="ORCHID Logo" style={{ height: '36px', transform: 'scale(1.5)', transformOrigin: 'center' }} />
         <span style={{ 
           fontFamily: 'Inter', fontWeight: 800, fontSize: '1.25rem',
           letterSpacing: '2px',
