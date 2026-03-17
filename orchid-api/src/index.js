@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     // Handle CORS preflight requests
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
@@ -79,7 +79,8 @@ export default {
         await stmt.run();
 
         // Trigger Real-time update via Pusher
-        await triggerPusher("new-booking", { message: "New booking received!", name: data.name });
+        // We use ctx.waitUntil to ensure the Worker doesn't terminate before the notification is sent
+        ctx.waitUntil(triggerPusher("new-booking", { message: "New booking received!", name: data.name }));
 
         return new Response(JSON.stringify({ success: true }), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
