@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, Phone, Download, RefreshCw, CheckCircle2,
-  Clock, XCircle, LayoutDashboard, MessageCircle
+  Clock, XCircle, LayoutDashboard, MessageCircle, Trash2
 } from 'lucide-react';
 
 // API BASE URL
@@ -71,6 +71,28 @@ const AdminDashboard = () => {
         showToast(`تم تغيير الحالة إلى "${newStatus}"`);
       } else {
         showToast('حدث خطأ في تحديث الحالة', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('خطأ في الاتصال بالخادم', 'error');
+    }
+  };
+
+  const deleteBooking = async (id) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا العميل نهائياً؟')) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        setBookings(bookings.filter(b => b.id !== id));
+        showToast('تم حذف العميل بنجاح');
+      } else {
+        showToast('حدث خطأ أثناء الحذف', 'error');
       }
     } catch (err) {
       console.error(err);
@@ -168,15 +190,20 @@ const AdminDashboard = () => {
             <a href={`tel:${b.phone}`} style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.85rem', direction: 'ltr', display: 'inline-block' }}>{b.phone}</a>
             {b.gender && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginRight: '0.5rem' }}> · {b.gender}</span>}
           </div>
-          <span style={{
-            padding: '0.3rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 700,
-            background: sColor.bg, color: sColor.color, border: `1px solid ${sColor.border}`,
-            whiteSpace: 'nowrap', flexShrink: 0,
-            boxShadow: isNew ? 'var(--neon-glow-cyan)' : 'none',
-            animation: isNew ? 'neonPulse 2s infinite' : 'none'
-          }}>
-            {b.status}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+            <span style={{
+              padding: '0.3rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 700,
+              background: sColor.bg, color: sColor.color, border: `1px solid ${sColor.border}`,
+              whiteSpace: 'nowrap',
+              boxShadow: isNew ? 'var(--neon-glow-cyan)' : 'none',
+              animation: isNew ? 'neonPulse 2s infinite' : 'none'
+            }}>
+              {b.status}
+            </span>
+            <button onClick={() => deleteBooking(b.id)} style={{ background: 'none', border: 'none', color: '#ff4444', padding: '4px', cursor: 'pointer', opacity: 0.7 }}>
+              <Trash2 size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Row 2: Service info */}
@@ -314,7 +341,7 @@ const AdminDashboard = () => {
                     <th style={{ padding: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem' }}>الخدمة</th>
                     <th style={{ padding: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem' }}>البيانات والموعد</th>
                     <th style={{ padding: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center' }}>الحالة</th>
-                    <th style={{ padding: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center' }}>متابعة</th>
+                    <th style={{ padding: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem', textAlign: 'center' }}>إجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -392,6 +419,9 @@ const AdminDashboard = () => {
                             >
                               {statuses.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
+                            <button onClick={() => deleteBooking(b.id)} style={{ background: 'none', border: 'none', color: '#ff4444', padding: '4px', cursor: 'pointer', opacity: 0.7 }} title="حذف">
+                              <Trash2 size={16} />
+                            </button>
                           </div>
                         </td>
                       </motion.tr>

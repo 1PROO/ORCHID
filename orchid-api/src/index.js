@@ -1,6 +1,6 @@
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
@@ -45,7 +45,9 @@ export default {
     const authHeader = request.headers.get("Authorization");
     const expectedToken = `Bearer ${env.ADMIN_PASSWORD}`;
     
-    if (path.startsWith("/api/bookings") && (request.method === "GET" || request.method === "PATCH")) {
+    // Protect GET, PATCH, and DELETE on admin routes
+    const isAdminMethod = ["GET", "PATCH", "DELETE"].includes(request.method);
+    if (path.startsWith("/api/bookings") && isAdminMethod) {
       if (!authHeader || authHeader !== expectedToken) {
         return new Response(JSON.stringify({ error: "Unauthorized: Invalid or missing Bearer token" }), { 
           status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -75,6 +77,22 @@ export default {
         const stmt = env.DB.prepare(`
           UPDATE bookings SET status = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2
         `).bind(status, id);
+        await stmt.run();
+        return new Response(JSON.stringify({ success: true }), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (e) {
+         return new Response(JSON.stringify({ error: e.message }), { 
+           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } 
+         });
+      }
+    }
+
+    // 4. Endpoint: Delete booking (Admin only)
+    if (path.match(/^\/api\/bookings\/\d+$/) && request.method === "DELETE") {
+      const id = path.split("/")[3];
+      try {
+        const stmt = env.DB.prepare("DELETE FROM bookings WHERE id = ?1").bind(id);
         await stmt.run();
         return new Response(JSON.stringify({ success: true }), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
