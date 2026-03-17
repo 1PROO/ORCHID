@@ -4,6 +4,8 @@ import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import BookingPage from './pages/BookingPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminDashboard from './pages/AdminDashboard';
 import { Facebook } from 'lucide-react';
 import './App.css';
 
@@ -18,6 +20,8 @@ function App() {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<HomePage />} />
             <Route path="/booking" element={<BookingPage />} />
+            <Route path="/orchid-admin" element={<AdminLoginPage />} />
+            <Route path="/orchid-admin/dashboard" element={<AdminDashboard />} />
           </Routes>
         </AnimatePresence>
       </main>

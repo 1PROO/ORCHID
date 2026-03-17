@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS bookings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  category TEXT NOT NULL,
+  service TEXT NOT NULL,
+  sub_type TEXT,
+  duration TEXT,
+  date TEXT,
+  time TEXT,
+  weight TEXT,
+  height TEXT,
+  goal TEXT,
+  injuries TEXT,
+  experience TEXT,
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  gender TEXT,
+  notes TEXT,
+  status TEXT DEFAULT 'جديد',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

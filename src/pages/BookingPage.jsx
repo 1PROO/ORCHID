@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { categories } from '../servicesData';
-import { 
-  ArrowRight, Activity, Apple, Dumbbell, Send, Loader2, 
-  ChevronRight, Sparkles, CheckCircle2, MessageCircle 
+import {
+  ArrowRight, Activity, Apple, Dumbbell, Send, Loader2,
+  ChevronRight, Sparkles, CheckCircle2, MessageCircle
 } from 'lucide-react';
 
 /* ─── category meta ─── */
 const categoryMeta = {
-  therapy:   { icon: Activity,  label: 'الجلسات العلاجية', desc: 'مساج، حجامة، إبر صينية، فوطة نارية', gradient: 'linear-gradient(135deg, #0a1628 0%, #0d1f3c 100%)' },
-  nutrition: { icon: Apple,     label: 'برامج التغذية',    desc: 'تغذية رياضية، علاج نحافة، علاج سمنة',  gradient: 'linear-gradient(135deg, #0a1a28 0%, #0d2a3c 100%)' },
-  training:  { icon: Dumbbell,  label: 'التدريب',          desc: 'تدريب شخصي، لياقة عامة',               gradient: 'linear-gradient(135deg, #1a0a28 0%, #2a0d3c 100%)' },
+  therapy: { icon: Activity, label: 'الجلسات العلاجية', desc: 'مساج، حجامة، إبر صينية، فوطة نارية', gradient: 'linear-gradient(135deg, #0a1628 0%, #0d1f3c 100%)' },
+  nutrition: { icon: Apple, label: 'برامج التغذية', desc: 'تغذية رياضية، علاج نحافة، علاج سمنة', gradient: 'linear-gradient(135deg, #0a1a28 0%, #0d2a3c 100%)' },
+  training: { icon: Dumbbell, label: 'التدريب', desc: 'تدريب شخصي، لياقة عامة', gradient: 'linear-gradient(135deg, #1a0a28 0%, #2a0d3c 100%)' },
 };
 
 const STEPS = { CATEGORY: 0, SERVICE: 1, DETAILS: 2, PERSONAL: 3, DONE: 4 };
@@ -57,7 +57,7 @@ const BookingPage = () => {
   }, [searchParams]);
 
   const selectedCategory = categories.find(c => c.id === formData.categoryId);
-  const selectedService  = selectedCategory?.services.find(s => s.id === formData.serviceId);
+  const selectedService = selectedCategory?.services.find(s => s.id === formData.serviceId);
 
   const selectCategory = (catId) => {
     setFormData({ ...formData, categoryId: catId, serviceId: '', subType: '', duration: '' });
@@ -89,7 +89,7 @@ const BookingPage = () => {
   };
 
   const generateMessageText = () => {
-    const ts = new Date().toLocaleString('ar-EG', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+    const ts = new Date().toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
     let t = `✨ *حجز جديد من الموقع* ✨\n⏰ *وقت الطلب:* ${ts}\n────────────────\n`;
     t += `📂 *القسم:* ${selectedCategory?.name || ''}\n🔧 *الخدمة:* ${selectedService?.name || ''}\n`;
     if (formData.categoryId === 'therapy') {
@@ -124,8 +124,26 @@ const BookingPage = () => {
     e.preventDefault();
     if (!formData.gender) return;
     setLoading(true);
+
     const text = generateMessageText();
+
+    // 1. إرسال إلى تليجرام
     await sendToTelegram(text);
+
+    // 2. إرسال إلى قاعدة بيانات (Cloudflare Worker D1)
+    try {
+      // TODO: يجب تغيير هذا الرابط بعد نشر الـ Worker على Cloudflare
+      const API_URL = 'https://orchid-api.ahmedakram19.workers.dev';
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+    } catch (err) {
+      console.error('Database connection error:', err);
+      // الخطأ هنا لن يوقف العملية، لضمان استمرار الحجز عن طريق تليجرام دائمًا
+    }
+
     setLoading(false);
     const phone = "201030558700";
     const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
@@ -164,7 +182,7 @@ const BookingPage = () => {
                 {isActive && step > idx ? <CheckCircle2 size={16} /> : idx + 1}
               </div>
               <span style={{
-                fontSize: 'clamp(0.55rem, 1.3vw, 0.75rem)', 
+                fontSize: 'clamp(0.55rem, 1.3vw, 0.75rem)',
                 color: isActive ? 'var(--accent)' : 'var(--text-muted)',
                 fontWeight: isCurrent ? 700 : 400, whiteSpace: 'nowrap'
               }}>{label}</span>
@@ -565,7 +583,7 @@ const BookingPage = () => {
                   </motion.a>
 
                   <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    onClick={() => { setStep(STEPS.CATEGORY); setWhatsappUrl(''); setFormData({ categoryId:'',serviceId:'',subType:'',duration:'',date:'',time:'',name:'',phone:'',gender:'',notes:'',weight:'',height:'',goal:'',injuries:'',experience:'' }); }}
+                    onClick={() => { setStep(STEPS.CATEGORY); setWhatsappUrl(''); setFormData({ categoryId: '', serviceId: '', subType: '', duration: '', date: '', time: '', name: '', phone: '', gender: '', notes: '', weight: '', height: '', goal: '', injuries: '', experience: '' }); }}
                     style={{
                       padding: '0.75rem 1.5rem', borderRadius: '0.75rem', fontWeight: 600,
                       background: 'rgba(0, 212, 255, 0.1)', border: '1px solid var(--accent)',
