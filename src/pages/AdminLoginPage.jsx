@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, LogIn } from 'lucide-react';
 
 const AdminLoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Auto-login via URL: /orchid-admin?token=orchid-admin-secret-2026
+  useEffect(() => {
+    const urlToken = searchParams.get('token');
+    if (urlToken === 'orchid-admin-secret-2026') {
+      sessionStorage.setItem('orchid_admin_token', urlToken);
+      navigate('/orchid-admin/dashboard', { replace: true });
+    }
+    // Also redirect if already logged in
+    const existing = sessionStorage.getItem('orchid_admin_token');
+    if (existing === 'orchid-admin-secret-2026') {
+      navigate('/orchid-admin/dashboard', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -15,19 +30,17 @@ const AdminLoginPage = () => {
       return;
     }
     
-    // التحقق من كلمة المرور (UX Improvement)
     if (password !== 'orchid-admin-secret-2026') {
       setError('كلمة المرور غير صحيحة');
       return;
     }
 
-    // حفظ الباسورد ليستخدم كـ Bearer Token
     sessionStorage.setItem('orchid_admin_token', password);
     navigate('/orchid-admin/dashboard');
   };
 
   return (
-    <section style={{ minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+    <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'var(--bg-main)' }}>
       <motion.div className="glass-card" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px', textAlign: 'center' }}
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         
