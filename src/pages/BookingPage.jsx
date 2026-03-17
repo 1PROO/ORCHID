@@ -39,6 +39,11 @@ const BookingPage = () => {
   const [loading, setLoading] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState('');
 
+  /* scroll to top on step change */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   useEffect(() => {
     const cat = searchParams.get('category');
     const svc = searchParams.get('service');
@@ -126,7 +131,6 @@ const BookingPage = () => {
     const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
     setWhatsappUrl(waUrl);
     setStep(STEPS.DONE);
-    window.open(waUrl, '_blank');
   };
 
   /* ─── styles ─── */
@@ -185,7 +189,7 @@ const BookingPage = () => {
   };
 
   return (
-    <section style={{ minHeight: '100vh', padding: 'clamp(1rem, 3vw, 2rem) 0', background: 'var(--bg-main)' }}>
+    <section style={{ minHeight: 'calc(100vh - 80px)', padding: 'clamp(1rem, 3vw, 2rem) 0', background: 'var(--bg-main)' }}>
       <div className="container" style={{ maxWidth: '750px' }}>
 
         {/* Header */}
@@ -262,27 +266,53 @@ const BookingPage = () => {
                 <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '1.25rem' }}>
                   اختر الخدمة من <span style={{ color: 'var(--accent)' }}>{selectedCategory.name}</span>
                 </h3>
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gap: '0.85rem' }}>
                   {selectedCategory.services.map((svc, idx) => (
                     <motion.div key={svc.id}
-                      initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.06 }}
-                      whileHover={{ scale: 1.01, borderColor: 'var(--accent)' }}
-                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.07 }}
+                      whileHover={{ scale: 1.02, boxShadow: '0 8px 30px rgba(0, 212, 255, 0.15)' }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => selectService(svc.id)}
                       style={{
-                        padding: 'clamp(0.85rem, 2vw, 1.25rem)', background: 'rgba(255,255,255,0.02)',
-                        borderRadius: '0.85rem', border: '1px solid var(--border-color)',
-                        cursor: 'pointer', transition: 'all 0.25s', display: 'flex', alignItems: 'center', gap: '0.75rem'
+                        position: 'relative', borderRadius: '1rem', overflow: 'hidden',
+                        cursor: 'pointer', transition: 'all 0.3s',
+                        border: '1px solid var(--border-color)',
+                        height: 'clamp(130px, 20vw, 160px)'
                       }}>
+                      {/* Background Image */}
+                      {svc.image && (
+                        <img src={svc.image} alt={svc.name} style={{
+                          position: 'absolute', inset: 0, width: '100%', height: '100%',
+                          objectFit: 'cover', transition: 'transform 0.5s ease'
+                        }} />
+                      )}
+                      {/* Gradient Overlay */}
                       <div style={{
-                        width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0,
-                        boxShadow: '0 0 6px rgba(0, 212, 255, 0.5)'
+                        position: 'absolute', inset: 0,
+                        background: svc.image
+                          ? 'linear-gradient(135deg, rgba(5,10,20,0.85) 0%, rgba(5,10,20,0.55) 50%, rgba(5,10,20,0.75) 100%)'
+                          : 'linear-gradient(135deg, #0a1628, #0d1f3c)',
                       }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 'clamp(0.9rem, 2vw, 1.05rem)', color: 'var(--text-main)', fontWeight: 600, marginBottom: '0.15rem' }}>{svc.name}</div>
-                        <div style={{ fontSize: 'clamp(0.72rem, 1.3vw, 0.8rem)', color: 'var(--text-muted)', lineHeight: 1.4 }}>{svc.description.substring(0, 80)}...</div>
+                      {/* Content */}
+                      <div style={{
+                        position: 'relative', zIndex: 1, height: '100%',
+                        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                        padding: 'clamp(1rem, 2.5vw, 1.5rem)'
+                      }}>
+                        <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', color: '#fff', fontWeight: 700, marginBottom: '0.3rem', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>{svc.name}</div>
+                        <div style={{ fontSize: 'clamp(0.72rem, 1.3vw, 0.82rem)', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{svc.description.substring(0, 90)}...</div>
                       </div>
-                      <ChevronRight size={18} color="var(--text-muted)" />
+                      {/* Arrow */}
+                      <div style={{
+                        position: 'absolute', top: '50%', left: 'clamp(0.75rem, 2vw, 1.25rem)',
+                        transform: 'translateY(-50%)',
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        background: 'rgba(0, 212, 255, 0.15)', backdropFilter: 'blur(4px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '1px solid rgba(0, 212, 255, 0.3)'
+                      }}>
+                        <ChevronRight size={16} color="var(--accent)" style={{ transform: 'scaleX(-1)' }} />
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -297,15 +327,33 @@ const BookingPage = () => {
                   <ArrowRight size={16} /> تغيير الخدمة
                 </button>
 
+                {/* Service Hero Banner */}
                 <div style={{
-                  padding: '0.75rem 1rem', marginBottom: '1.25rem', borderRadius: '0.75rem',
-                  background: 'rgba(0, 212, 255, 0.05)', border: '1px solid rgba(0, 212, 255, 0.15)',
-                  display: 'flex', alignItems: 'center', gap: '0.5rem'
+                  position: 'relative', borderRadius: '0.85rem', overflow: 'hidden',
+                  marginBottom: '1.25rem', height: 'clamp(80px, 14vw, 100px)'
                 }}>
-                  {(() => { const I = categoryMeta[formData.categoryId]?.icon || Activity; return <I size={18} color="var(--accent)" />; })()}
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{selectedCategory?.name}</span>
-                  <span style={{ color: 'var(--border-color)', margin: '0 0.25rem' }}>›</span>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>{selectedService?.name}</span>
+                  {selectedService.image && (
+                    <img src={selectedService.image} alt={selectedService.name} style={{
+                      position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'
+                    }} />
+                  )}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: selectedService.image
+                      ? 'linear-gradient(135deg, rgba(5,10,20,0.88) 0%, rgba(5,10,20,0.5) 100%)'
+                      : 'linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(224, 64, 251, 0.05))'
+                  }} />
+                  <div style={{
+                    position: 'relative', zIndex: 1, height: '100%',
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '0 clamp(0.75rem, 2vw, 1.25rem)'
+                  }}>
+                    {(() => { const I = categoryMeta[formData.categoryId]?.icon || Activity; return <I size={20} color="var(--accent)" />; })()}
+                    <div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--accent)', fontWeight: 500 }}>{selectedCategory?.name}</div>
+                      <div style={{ fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: '#fff', fontWeight: 700 }}>{selectedService?.name}</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gap: '1.25rem' }}>
@@ -446,17 +494,18 @@ const BookingPage = () => {
                   <div>
                     <label style={labelStyle}>الجنس *</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                      {['ذكر', 'أنثى'].map(g => (
-                        <motion.div key={g} whileTap={{ scale: 0.95 }}
-                          onClick={() => setFormData({ ...formData, gender: g })}
+                      {[{ label: 'ذكر', icon: '♂', color: '#00d4ff', bg: 'rgba(0, 212, 255, 0.12)' }, { label: 'أنثى', icon: '♀', color: '#e040fb', bg: 'rgba(224, 64, 251, 0.12)' }].map(g => (
+                        <motion.div key={g.label} whileTap={{ scale: 0.95 }}
+                          onClick={() => setFormData({ ...formData, gender: g.label })}
                           style={{
-                            textAlign: 'center', padding: '0.7rem', borderRadius: '0.6rem', cursor: 'pointer',
-                            background: formData.gender === g ? 'rgba(0, 212, 255, 0.12)' : 'transparent',
-                            border: formData.gender === g ? '2px solid var(--accent)' : '1px solid var(--border-color)',
-                            color: formData.gender === g ? 'var(--accent)' : 'var(--text-main)',
-                            fontWeight: formData.gender === g ? 700 : 400, transition: 'all 0.2s', fontSize: '1rem'
+                            textAlign: 'center', padding: '0.75rem', borderRadius: '0.6rem', cursor: 'pointer',
+                            background: formData.gender === g.label ? g.bg : 'transparent',
+                            border: formData.gender === g.label ? `2px solid ${g.color}` : '1px solid var(--border-color)',
+                            color: formData.gender === g.label ? g.color : 'var(--text-main)',
+                            fontWeight: formData.gender === g.label ? 700 : 400, transition: 'all 0.2s', fontSize: '1rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
                           }}>
-                          {g}
+                          <span style={{ fontSize: '1.2rem' }}>{g.icon}</span> {g.label}
                         </motion.div>
                       ))}
                     </div>

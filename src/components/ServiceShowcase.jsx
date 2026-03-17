@@ -72,18 +72,35 @@ const ServiceShowcase = ({ onBookNow }) => {
                   whileHover={{ y: -6, boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}
                   className="glass-card" 
                   style={{ 
-                    padding: 'clamp(1.25rem, 3vw, 2rem)', 
                     height: '100%', 
                     display: 'flex', 
                     flexDirection: 'column',
-                    transition: 'box-shadow 0.3s ease'
+                    transition: 'box-shadow 0.3s ease',
+                    overflow: 'hidden'
                   }}
                 >
-                  <h4 style={{ 
-                    fontSize: 'clamp(1.1rem, 2vw, 1.5rem)', 
-                    color: 'var(--accent-light)', 
-                    marginBottom: '0.75rem' 
-                  }}>{service.name}</h4>
+                  {service.image && (
+                    <div style={{ width: '100%', height: '200px', overflow: 'hidden' }}>
+                      <motion.img 
+                        src={service.image} 
+                        alt={service.name}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.4 }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
+                  <div style={{ 
+                    padding: 'clamp(1.25rem, 3vw, 2rem)', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    flex: 1
+                  }}>
+                    <h4 style={{ 
+                      fontSize: 'clamp(1.1rem, 2vw, 1.5rem)', 
+                      color: 'var(--accent-light)', 
+                      marginBottom: '0.75rem' 
+                    }}>{service.name}</h4>
 
                   <p style={{ 
                     color: 'var(--text-muted)', 
@@ -150,6 +167,7 @@ const ServiceShowcase = ({ onBookNow }) => {
                   >
                     احجز الآن ←
                   </motion.div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
