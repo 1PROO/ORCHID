@@ -11,6 +11,52 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Helper function to trigger Pusher event
+    async function triggerPusher(event, data) {
+      const pusherConfig = {
+        appId: "2129129",
+        key: "c5a1bdf3dd3a80627a6b",
+        secret: "64b80d73de9ef9980dad",
+        cluster: "us3"
+      };
+
+      const path = `/apps/${pusherConfig.appId}/events`;
+      const body = JSON.stringify({
+        name: event,
+        channels: ["bookings-channel"],
+        data: JSON.stringify(data)
+      });
+
+      const timestamp = Math.floor(Date.now() / 1000);
+      const authQuery = `auth_key=${pusherConfig.key}&auth_timestamp=${timestamp}&auth_version=1.0&body_md5=${await md5(body)}`;
+      const authSignature = await hmacSha256(pusherConfig.secret, `POST\n${path}\n${authQuery}`);
+      
+      const url = `https://api-${pusherConfig.cluster}.pusher.com${path}?${authQuery}&auth_signature=${authSignature}`;
+
+      await fetch(url, {
+        method: "POST",
+        body: body,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // MD5 helper for Pusher auth
+    async function md5(str) {
+      const msgUint8 = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest("MD5", msgUint8);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // HMAC-SHA256 helper for Pusher auth
+    async function hmacSha256(key, message) {
+      const encoder = new TextEncoder();
+      const keyData = encoder.encode(key);
+      const messageData = encoder.encode(message);
+      const cryptoKey = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+      const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
+      return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -31,6 +77,10 @@ export default {
           data.name || null, data.phone || null, data.gender || null, data.notes || null
         );
         await stmt.run();
+
+        // Trigger Real-time update via Pusher
+        await triggerPusher("new-booking", { message: "New booking received!", name: data.name });
+
         return new Response(JSON.stringify({ success: true }), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
         });

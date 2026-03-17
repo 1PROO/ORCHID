@@ -5,6 +5,7 @@ import {
   LogOut, Phone, Download, RefreshCw, CheckCircle2,
   Clock, XCircle, LayoutDashboard, MessageCircle, Trash2
 } from 'lucide-react';
+import Pusher from 'pusher-js';
 
 // API BASE URL
 const API_URL = 'https://orchid-api.ahmedakram19.workers.dev/api/bookings';
@@ -24,6 +25,23 @@ const AdminDashboard = () => {
       return;
     }
     fetchBookings();
+
+    // Real-time updates with Pusher
+    const pusher = new Pusher('c5a1bdf3dd3a80627a6b', {
+      cluster: 'us3'
+    });
+
+    const channel = pusher.subscribe('bookings-channel');
+    channel.bind('new-booking', (data) => {
+      console.log('Real-time update received:', data);
+      fetchBookings(true);
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+      pusher.disconnect();
+    };
   }, [token, navigate]);
 
   const showToast = (message, type = 'success') => {
@@ -31,8 +49,8 @@ const AdminDashboard = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const fetchBookings = async () => {
-    setLoading(true);
+  const fetchBookings = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(API_URL, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -44,15 +62,31 @@ const AdminDashboard = () => {
       }
       const data = await res.json();
       if (data.bookings) {
-        setBookings(data.bookings);
-      } else {
+        setBookings(prev => {
+          // Check for new bookings to notify the admin
+          if (silent && prev.length > 0) {
+            const currentIds = new Set(prev.map(b => b.id));
+            const newBookings = data.bookings.filter(b => !currentIds.has(b.id));
+
+            if (newBookings.length > 0) {
+              showToast(`🚨 تم استلام ${newBookings.length === 1 ? 'حجز جديد!' : newBookings.length + ' حجوزات جديدة!'}`, 'success');
+              try {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+              } catch (e) {}
+            }
+          }
+          return data.bookings;
+        });
+      } else if (!silent) {
         showToast('فشل جلب البيانات', 'error');
       }
     } catch (err) {
       console.error(err);
-      showToast('تعذر الاتصال بالخادم', 'error');
+      if (!silent) showToast('تعذر الاتصال بالخادم', 'error');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -267,10 +301,19 @@ const AdminDashboard = () => {
 
         {/* Header */}
         <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <LayoutDashboard size={24} color="var(--accent)" />
-            <h2 className="admin-title" style={{ fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', color: 'var(--text-main)', margin: 0, whiteSpace: 'nowrap' }}>لوحة المتابعة</h2>
-          </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <LayoutDashboard size={24} color="var(--accent)" />
+              <h2 className="admin-title" style={{ fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', color: 'var(--text-main)', margin: 0, whiteSpace: 'nowrap' }}>لوحة المتابعة</h2>
+              <div className="live-indicator" style={{ 
+                display: 'flex', alignItems: 'center', gap: '4px',
+                background: 'rgba(37, 211, 102, 0.1)', padding: '2px 8px', borderRadius: '10px',
+                fontSize: '0.7rem', color: '#25D366', fontWeight: 700,
+                border: '1px solid rgba(37, 211, 102, 0.2)'
+              }}>
+                <span className="pulse-dot"></span>
+                LIVE
+              </div>
+            </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button onClick={fetchBookings} className="admin-btn" style={{ padding: '0.5rem', borderRadius: '0.5rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
               <RefreshCw size={16} className={loading ? "spin-icon" : ""} />
@@ -523,6 +566,30 @@ const AdminDashboard = () => {
 
         @media (max-width: 400px) {
           .admin-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 0.5rem !important; }
+        }
+
+        .live-indicator {
+          animation: fadeIn 1s ease-in;
+        }
+
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          background-color: #25D366;
+          border-radius: 50%;
+          display: inline-block;
+          animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(37, 211, 102, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
       `}</style>
     </section>
