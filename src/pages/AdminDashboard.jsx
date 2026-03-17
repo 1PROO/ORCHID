@@ -153,6 +153,7 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'الكل': return { bg: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '#8899aa' };
       case 'جديد': return { bg: 'rgba(0, 212, 255, 0.15)', color: 'var(--accent)', border: 'var(--accent)' };
       case 'تم التواصل': return { bg: 'rgba(255, 193, 7, 0.15)', color: '#ffc107', border: '#ffc107' };
       case 'مؤكد': return { bg: 'rgba(37, 211, 102, 0.15)', color: '#25D366', border: '#25D366' };
@@ -303,20 +304,25 @@ const AdminDashboard = () => {
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.75rem', marginBottom: '1rem', scrollbarWidth: 'none' }}>
-          {['الكل', ...statuses].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              style={{
-                padding: '0.4rem 0.85rem', borderRadius: '2rem', whiteSpace: 'nowrap', fontWeight: 600,
-                fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-                background: filter === f ? 'var(--accent)' : 'var(--bg-card)',
-                color: filter === f ? '#000' : 'var(--text-muted)',
-                border: filter === f ? 'none' : '1px solid var(--border-color)',
-                transition: 'all 0.2s', cursor: 'pointer'
-              }}>
-              {f}
-            </button>
-          ))}
+        <div className="filter-scroll-container" style={{ display: 'flex', gap: '0.6rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '1rem', scrollbarWidth: 'none' }}>
+          {['الكل', ...statuses].map(f => {
+            const sColor = getStatusColor(f);
+            const active = filter === f;
+            return (
+              <button 
+                key={f} 
+                onClick={() => setFilter(f)}
+                className={`filter-badge ${active ? 'active' : ''}`}
+                style={{
+                  '--badge-color': sColor.color,
+                  '--badge-bg': sColor.bg,
+                  '--badge-border': sColor.border,
+                }}
+              >
+                {f}
+              </button>
+            );
+          })}
         </div>
 
         {/* Content */}
@@ -466,6 +472,42 @@ const AdminDashboard = () => {
       <style>{`
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spin-icon { animation: spin 1s linear infinite; }
+
+        .filter-scroll-container::-webkit-scrollbar { display: none; }
+
+        .filter-badge {
+          padding: 0.5rem 1.1rem;
+          border-radius: 2rem;
+          white-space: nowrap;
+          font-weight: 600;
+          font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+          background: rgba(255, 255, 255, 0.03);
+          color: var(--text-muted);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+        }
+
+        .filter-badge:hover {
+          border-color: var(--badge-border);
+          background: var(--badge-bg);
+          color: var(--badge-color);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-badge.active {
+          background: var(--badge-color) !important;
+          color: #000 !important;
+          border-color: transparent !important;
+          box-shadow: 0 0 15px var(--badge-color);
+          transform: translateY(-2px);
+        }
+
+        .filter-badge:hover:not(.active) {
+          border-color: var(--badge-color);
+          box-shadow: 0 0 10px var(--badge-bg);
+        }
 
         /* Desktop: show table, hide cards */
         .admin-desktop-table { display: block; }

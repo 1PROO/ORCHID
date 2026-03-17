@@ -9,16 +9,16 @@ const AdminLoginPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Auto-login via URL: /orchid-admin?token=orchid-admin-secret-2026
+  // Auto-login via URL: /orchid-admin?token=Admin@12345
   useEffect(() => {
     const urlToken = searchParams.get('token');
-    if (urlToken === 'orchid-admin-secret-2026') {
+    if (urlToken === 'Admin@12345') {
       sessionStorage.setItem('orchid_admin_token', urlToken);
       navigate('/orchid-admin/dashboard', { replace: true });
     }
     // Also redirect if already logged in
     const existing = sessionStorage.getItem('orchid_admin_token');
-    if (existing === 'orchid-admin-secret-2026') {
+    if (existing === 'Admin@12345') {
       navigate('/orchid-admin/dashboard', { replace: true });
     }
   }, [searchParams, navigate]);
@@ -30,7 +30,7 @@ const AdminLoginPage = () => {
       return;
     }
     
-    if (password !== 'orchid-admin-secret-2026') {
+    if (password !== 'Admin@12345') {
       setError('كلمة المرور غير صحيحة');
       return;
     }
