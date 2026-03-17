@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 // API BASE URL - قم بتغيير هذا الرابط إلى رابط Cloudflare Worker الفعلي بعد النشر
-const API_URL = 'https://orchid-api.ahmedakram19.workers.dev';
+const API_URL = 'https://orchid-api.ahmedakram19.workers.dev/api/bookings';
 
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState([]);

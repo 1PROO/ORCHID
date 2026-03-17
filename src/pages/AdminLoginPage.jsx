@@ -14,6 +14,13 @@ const AdminLoginPage = () => {
       setError('يرجى إدخال كلمة المرور');
       return;
     }
+    
+    // التحقق من كلمة المرور (UX Improvement)
+    if (password !== 'orchid-admin-secret-2026') {
+      setError('كلمة المرور غير صحيحة');
+      return;
+    }
+
     // حفظ الباسورد ليستخدم كـ Bearer Token
     sessionStorage.setItem('orchid_admin_token', password);
     navigate('/orchid-admin/dashboard');

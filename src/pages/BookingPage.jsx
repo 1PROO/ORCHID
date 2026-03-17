@@ -133,7 +133,7 @@ const BookingPage = () => {
     // 2. إرسال إلى قاعدة بيانات (Cloudflare Worker D1)
     try {
       // TODO: يجب تغيير هذا الرابط بعد نشر الـ Worker على Cloudflare
-      const API_URL = 'https://orchid-api.ahmedakram19.workers.dev';
+      const API_URL = 'https://orchid-api.ahmedakram19.workers.dev/api/bookings';
       await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
