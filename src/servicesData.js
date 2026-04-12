@@ -6,7 +6,7 @@ export const categories = [
       {
         id: 'massage',
         name: 'جلسات المساج العلاجي',
-        image: '/images/services/جلسات المساج العلاجي.png',
+        image: '/images/services/جلسات المساج العلاجي.webp',
         description: 'نقدم جلسات مساج احترافية تهدف إلى تحسين الدورة الدموية، تقليل التوتر العضلي، وتعزيز الاسترخاء العام للجسم.',
         types: ['مساج استرخائي', 'مساج علاجي للآلام العضلية', 'مساج رياضي', 'مساج إزالة الشد العضلي', 'مساج تحسين الدورة الدموية', 'مساج تنشيط الطاقة'],
         durations: [30, 60, 90],
@@ -15,7 +15,7 @@ export const categories = [
       {
         id: 'hijama',
         name: 'جلسات الحجامة',
-        image: '/images/services/جلسات الحجامة.png',
+        image: '/images/services/جلسات الحجامة.webp',
         description: 'الحجامة من أقوى وسائل الطب التكميلي لتحفيز الدورة الدموية وتنقية الجسم من السموم وتحسين الأداء البدني.',
         types: ['الحجامة الجافة', 'الحجامة الرطبة', 'الحجامة المتزحلقة', 'حجامة علاجية موجهة حسب الحالة'],
         requiresBooking: true
@@ -23,7 +23,7 @@ export const categories = [
       {
         id: 'acupuncture',
         name: 'الإبر الصينية (Acupuncture)',
-        image: '/images/services/الإبر الصينية.png',
+        image: '/images/services/الإبر الصينية.webp',
         description: 'تقنية علاجية معتمدة تعتمد على تحفيز نقاط الطاقة بالجسم لتحسين وظائف الأعضاء وتقليل الألم.',
         indications: ['آلام المفاصل والظهر', 'الصداع النصفي', 'مشاكل الأعصاب', 'تنشيط الدورة الدموية', 'تحسين الأداء الرياضي'],
         requiresBooking: true
@@ -31,7 +31,7 @@ export const categories = [
       {
         id: 'fire-towel',
         name: 'الفوطة النارية',
-        image: '/images/services/الفوطة النارية.png',
+        image: '/images/services/الفوطة النارية.webp',
         description: 'تقنية علاجية حرارية تستخدم لتحفيز الدورة الدموية العميقة وتقليل الالتهابات العضلية والمفصلية.',
         indications: ['آلام أسفل الظهر', 'تيبس الرقبة', 'آلام المفاصل', 'حالات الإرهاق العضلي'],
         requiresBooking: true
@@ -45,7 +45,7 @@ export const categories = [
       {
         id: 'sports-nutrition',
         name: 'التغذية الرياضية',
-        image: '/images/services/التغذية الرياضية.png',
+        image: '/images/services/التغذية الرياضية.webp',
         description: 'برامج غذائية مخصصة للرياضيين تهدف إلى زيادة الكتلة العضلية وتحسين الأداء البدني.',
         features: ['نظام غذائي مخصص', 'بدائل متعددة لكل وجبة', 'متابعة دورية', 'تعديلات حسب التقدم'],
         requiresForm: true
@@ -53,7 +53,7 @@ export const categories = [
       {
         id: 'underweight',
         name: 'برنامج علاج النحافة',
-        image: '/images/services/برنامج علاج النحافة.png',
+        image: '/images/services/برنامج علاج النحافة.webp',
         description: 'برنامج غذائي احترافي لزيادة الوزن بشكل صحي ومتوازن.',
         focus: ['زيادة الكتلة العضلية', 'تحسين الشهية', 'بناء جسم متناسق'],
         requiresForm: true
@@ -61,7 +61,7 @@ export const categories = [
       {
         id: 'obesity',
         name: 'برنامج علاج السمنة',
-        image: '/images/services/برنامج علاج السمنة.png',
+        image: '/images/services/برنامج علاج السمنة.webp',
         description: 'برنامج متكامل لإنقاص الوزن يعتمد على عجز سعرات محسوب بدقة.',
         features: ['عجز سعرات محسوب', 'الحفاظ على الكتلة العضلية', 'تحسين معدل الحرق'],
         requiresForm: true
@@ -75,7 +75,7 @@ export const categories = [
       {
         id: 'personal-training',
         name: 'التدريب الشخصي (Personal Training)',
-        image: '/images/services/التدريب الشخصي.png',
+        image: '/images/services/التدريب الشخصي.webp',
         description: 'برنامج تدريبي مخصص بالكامل حسب الهدف ومستوى اللياقة.',
         includes: ['خطة تدريب مفصلة', 'شرح التمارين بالفيديو', 'متابعة أسبوعية', 'قياسات دورية'],
         requiresForm: true
@@ -83,7 +83,7 @@ export const categories = [
       {
         id: 'fitness',
         name: 'تدريب اللياقة العامة',
-        image: '/images/services/تدريب اللياقة العامة.png',
+        image: '/images/services/تدريب اللياقة العامة.webp',
         description: 'برنامج لتحسين القوة، التحمل، المرونة، واللياقة القلبية التنفسية.',
         target: ['المبتدئين والمتوسطين'],
         requiresForm: true

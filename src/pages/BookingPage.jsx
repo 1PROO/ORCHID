@@ -299,7 +299,7 @@ const BookingPage = () => {
                       }}>
                       {/* Background Image */}
                       {svc.image && (
-                        <img src={svc.image} alt={svc.name} style={{
+                        <img src={svc.image} alt={svc.name} loading="lazy" width={600} height={160} style={{
                           position: 'absolute', inset: 0, width: '100%', height: '100%',
                           objectFit: 'cover', transition: 'transform 0.5s ease'
                         }} />
@@ -351,7 +351,7 @@ const BookingPage = () => {
                   marginBottom: '1.25rem', height: 'clamp(80px, 14vw, 100px)'
                 }}>
                   {selectedService.image && (
-                    <img src={selectedService.image} alt={selectedService.name} style={{
+                    <img src={selectedService.image} alt={selectedService.name} loading="lazy" width={750} height={100} style={{
                       position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'
                     }} />
                   )}

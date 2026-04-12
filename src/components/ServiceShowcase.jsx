@@ -84,6 +84,9 @@ const ServiceShowcase = ({ onBookNow }) => {
                       <motion.img 
                         src={service.image} 
                         alt={service.name}
+                        loading="lazy"
+                        width={400}
+                        height={200}
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.4 }}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
