@@ -107,7 +107,7 @@ const Hero = () => {
               boxShadow: '0 4px 20px rgba(0, 212, 255, 0.25), 0 4px 20px rgba(224, 64, 251, 0.15)'
             }}
           >
-            احجز استشارتك الآن
+            احجز الآن
           </motion.button>
         </motion.div>
       </motion.div>

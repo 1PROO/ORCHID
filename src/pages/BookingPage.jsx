@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { categories } from '../servicesData';
+import { massageCategories } from '../data/massageData';
 import {
   ArrowRight, Activity, Apple, Dumbbell, Send, Loader2,
   ChevronRight, Sparkles, CheckCircle2, MessageCircle
@@ -31,6 +32,7 @@ const BookingPage = () => {
   const formRef = useRef(null);
 
   const [step, setStep] = useState(STEPS.CATEGORY);
+  const [activeMassageCatId, setActiveMassageCatId] = useState(massageCategories[0].id);
   const [formData, setFormData] = useState({
     categoryId: '', serviceId: '', subType: '', duration: '',
     date: '', time: '', name: '', phone: '', gender: '', notes: '',
@@ -377,7 +379,158 @@ const BookingPage = () => {
                 <div style={{ display: 'grid', gap: '1.25rem' }}>
                   {formData.categoryId === 'therapy' && (
                     <>
-                      {selectedService.types ? (
+                      {selectedService.id === 'massage' ? (
+                        <div style={{ marginBottom: '1.25rem' }}>
+                          <label style={{ ...labelStyle, fontSize: '1rem', marginBottom: '0.75rem' }}>اختر قسم ونوع المساج المطلوب:</label>
+                          
+                          {/* Horizontal Scrollable Tabs */}
+                          <div style={{ 
+                            display: 'flex', 
+                            gap: '0.5rem', 
+                            overflowX: 'auto', 
+                            paddingBottom: '0.75rem',
+                            marginBottom: '1.25rem',
+                            scrollbarWidth: 'thin',
+                            WebkitOverflowScrolling: 'touch'
+                          }}>
+                            {massageCategories.map(cat => {
+                              const isActive = activeMassageCatId === cat.id;
+                              return (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => setActiveMassageCatId(cat.id)}
+                                  style={{
+                                    padding: '0.55rem 1rem',
+                                    borderRadius: '2rem',
+                                    border: isActive ? '1px solid var(--accent)' : '1px solid var(--border-color)',
+                                    background: isActive ? 'var(--gradient-accent)' : 'rgba(255,255,255,0.03)',
+                                    color: isActive ? '#fff' : 'var(--text-muted)',
+                                    fontSize: '0.85rem',
+                                    fontWeight: isActive ? 700 : 500,
+                                    whiteSpace: 'nowrap',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem',
+                                    transition: 'all 0.25s ease',
+                                    boxShadow: isActive ? '0 4px 15px rgba(0, 212, 255, 0.25)' : 'none'
+                                  }}
+                                >
+                                  <span>{cat.icon}</span>
+                                  <span>{cat.title.replace('قسم ', '')}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Selected Category Types Grid */}
+                          {(() => {
+                            const activeCat = massageCategories.find(c => c.id === activeMassageCatId) || massageCategories[0];
+                            return (
+                              <div>
+                                <div style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  justifyContent: 'space-between',
+                                  marginBottom: '1rem',
+                                  paddingBottom: '0.5rem',
+                                  borderBottom: '1px solid var(--border-color)'
+                                }}>
+                                  <h4 style={{ color: 'var(--accent)', fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <span>{activeCat.icon}</span> {activeCat.title}
+                                  </h4>
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(0, 212, 255, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '1rem' }}>
+                                    {activeCat.types.length} أنواع متاحة
+                                  </span>
+                                </div>
+
+                                <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
+                                  {activeCat.types.map(t => {
+                                    const fullTypeName = `${activeCat.title} - ${t.name}`;
+                                    const isSelected = formData.subType === fullTypeName || formData.subType === t.name;
+                                    return (
+                                      <motion.div
+                                        key={t.id}
+                                        whileHover={{ y: -4 }}
+                                        onClick={() => setFormData({ ...formData, subType: fullTypeName })}
+                                        style={{
+                                          borderRadius: '0.85rem',
+                                          overflow: 'hidden',
+                                          border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                          background: isSelected ? 'rgba(0, 212, 255, 0.08)' : 'var(--bg-card)',
+                                          boxShadow: isSelected ? '0 0 20px rgba(0, 212, 255, 0.2)' : 'none',
+                                          cursor: 'pointer',
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          transition: 'all 0.3s ease'
+                                        }}
+                                      >
+                                        {t.image && (
+                                          <div style={{ width: '100%', height: '140px', overflow: 'hidden', position: 'relative' }}>
+                                            <img src={t.image} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <div style={{
+                                              position: 'absolute', inset: 0,
+                                              background: 'linear-gradient(to top, rgba(10,22,40,0.9) 0%, transparent 60%)'
+                                            }} />
+                                            {isSelected && (
+                                              <div style={{
+                                                position: 'absolute', top: '8px', left: '8px',
+                                                background: 'var(--accent)', color: '#fff',
+                                                padding: '0.25rem 0.75rem', borderRadius: '1rem',
+                                                fontSize: '0.75rem', fontWeight: 700,
+                                                display: 'flex', alignItems: 'center', gap: '0.3rem'
+                                              }}>
+                                                <CheckCircle2 size={14} /> تم الاختيار
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                        <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                          <h5 style={{ color: isSelected ? 'var(--accent)' : 'var(--text-main)', fontSize: '0.98rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+                                            {t.name}
+                                          </h5>
+                                          <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', lineHeight: 1.6, marginBottom: '0.75rem', flex: 1 }}>
+                                            {t.description}
+                                          </p>
+                                          {t.suitability && (
+                                            <p style={{ color: 'var(--accent-light)', fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '0.75rem', background: 'rgba(0,212,255,0.05)', padding: '0.4rem 0.6rem', borderRadius: '0.5rem' }}>
+                                              💡 {t.suitability}
+                                            </p>
+                                          )}
+                                          {t.note && (
+                                            <p style={{ color: '#ffb74d', fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '0.75rem', background: 'rgba(255,183,77,0.1)', borderRight: '3px solid #ffb74d', padding: '0.4rem 0.6rem', borderRadius: '0.3rem' }}>
+                                              ⚠️ {t.note}
+                                            </p>
+                                          )}
+                                          <button
+                                            type="button"
+                                            style={{
+                                              marginTop: 'auto',
+                                              width: '100%',
+                                              padding: '0.55rem',
+                                              borderRadius: '0.5rem',
+                                              border: isSelected ? 'none' : '1px solid var(--border-color)',
+                                              background: isSelected ? 'var(--gradient-accent)' : 'transparent',
+                                              color: isSelected ? '#fff' : 'var(--accent)',
+                                              fontWeight: 700,
+                                              fontSize: '0.85rem',
+                                              cursor: 'pointer',
+                                              transition: 'all 0.2s'
+                                            }}
+                                          >
+                                            {isSelected ? '✓ تم تحديد هذا النوع' : 'اختر هذا النوع'}
+                                          </button>
+                                        </div>
+                                      </motion.div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      ) : selectedService.types ? (
                         <div>
                           <label style={labelStyle}>نوع الجلسة</label>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 140px), 1fr))', gap: '0.5rem' }}>
