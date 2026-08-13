@@ -98,7 +98,7 @@ const StepPersonal = ({
                   ? 'booking-gender-card--male-active'
                   : ''
               }`}
-              onClick={() => handleGenderSelect('male')}
+              onClick={() => handleGenderSelect('ذكر')}
               aria-pressed={formData.gender === 'male' || formData.gender === 'ذكر'}
             >
               <span style={{ fontSize: '1.25rem' }}>♂</span>
@@ -112,7 +112,7 @@ const StepPersonal = ({
                   ? 'booking-gender-card--female-active'
                   : ''
               }`}
-              onClick={() => handleGenderSelect('female')}
+              onClick={() => handleGenderSelect('أنثى')}
               aria-pressed={formData.gender === 'female' || formData.gender === 'أنثى'}
             >
               <span style={{ fontSize: '1.25rem' }}>♀</span>

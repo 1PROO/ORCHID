@@ -6,7 +6,7 @@
 /* ─── 1. Base Container & Touch Utilities ─── */
 .booking-section {
   min-height: calc(100vh - 80px);
-  padding: clamp(1rem, 3vw, 2rem) 0;
+  padding: clamp(0.75rem, 2vw, 1.75rem) 0;
   background: var(--bg-main);
   direction: rtl;
 }
@@ -14,7 +14,19 @@
 .booking-container {
   max-width: 750px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.85rem;
+}
+
+/* Glass Card Mobile Polish */
+@media (max-width: 576px) {
+  .booking-container {
+    padding: 0 0.5rem;
+  }
+
+  .glass-card {
+    padding: 1rem 0.85rem !important;
+    border-radius: 1.25rem !important;
+  }
 }
 
 /* 44px Minimum Touch Target Enforcement */
@@ -29,6 +41,7 @@
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* 16px Input Font Size (Prevents iOS Auto-Zoom on Focus) */
@@ -46,13 +59,14 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   direction: rtl;
   box-sizing: border-box;
+  font-family: 'Cairo', sans-serif;
 }
 
 .booking-form-input:focus,
 .booking-form-select:focus,
 .booking-form-textarea:focus {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15), 0 0 0 3px rgba(224, 64, 251, 0.05) !important;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2) !important;
 }
 
 .booking-form-label {
@@ -68,27 +82,27 @@
 /* ─── 2. Header & Progress Bar ─── */
 .booking-header {
   text-align: center;
-  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
 }
 
 .booking-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
   color: var(--accent);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .booking-title {
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-size: clamp(1.4rem, 4vw, 2.1rem);
   color: var(--text-main);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
   font-family: 'Cairo', sans-serif;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .booking-title-gradient {
@@ -99,7 +113,7 @@
 
 .booking-subtitle {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* Progress Bar Container & Step Circles */
@@ -108,7 +122,7 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
   direction: rtl;
   width: 100%;
 }
@@ -117,7 +131,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   min-width: 44px;
   min-height: 44px;
   justify-content: center;
@@ -158,14 +172,14 @@
 .booking-progress-label {
   font-size: clamp(0.625rem, 1.3vw, 0.75rem);
   color: var(--text-muted);
-  font-weight: 400;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .booking-progress-step.active .booking-progress-label,
 .booking-progress-step.completed .booking-progress-label {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .booking-progress-line {
@@ -175,7 +189,7 @@
   max-width: 48px;
   background: var(--border-color);
   margin: 0 0.2rem;
-  margin-bottom: 1.3rem;
+  margin-bottom: 1.2rem;
   transition: background 0.3s ease;
 }
 
@@ -191,14 +205,14 @@
 .step-category-title {
   font-size: 1.1rem;
   color: var(--text-main);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   text-align: center;
   font-family: 'Cairo', sans-serif;
 }
 
 .step-category-grid {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
   width: 100%;
   grid-template-columns: 1fr;
 }
@@ -207,26 +221,26 @@
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 2.5vw, 1.25rem);
-  padding: clamp(1rem, 2.5vw, 1.25rem);
-  min-height: 64px;
+  padding: clamp(0.85rem, 2.5vw, 1.15rem);
+  min-height: 60px;
   width: 100%;
   border-radius: 1rem;
   border: 1px solid var(--border-color);
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
 }
 
-.category-tap-target:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.category-tap-target:active {
+  transform: scale(0.97);
+  border-color: var(--accent);
 }
 
 .category-icon-wrapper {
-  width: clamp(48px, 8vw, 56px);
-  height: clamp(48px, 8vw, 56px);
+  width: clamp(44px, 8vw, 52px);
+  height: clamp(44px, 8vw, 52px);
   border-radius: 0.85rem;
   background: rgba(0, 212, 255, 0.08);
   display: flex;
@@ -241,21 +255,21 @@
 }
 
 .category-label {
-  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  font-size: clamp(0.98rem, 2.5vw, 1.1rem);
   color: var(--text-main);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
   font-family: 'Cairo', sans-serif;
   font-weight: 700;
 }
 
 .category-desc {
-  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+  font-size: clamp(0.75rem, 1.5vw, 0.82rem);
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .category-chevron {
-  color: var(--text-muted);
+  color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -264,32 +278,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .booking-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.5rem 0.85rem;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.4rem 0.85rem;
   border-radius: 0.75rem;
   background: rgba(0, 212, 255, 0.08);
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .booking-back-btn:active {
   transform: scale(0.96);
-  background: rgba(0, 212, 255, 0.15);
+  background: rgba(0, 212, 255, 0.18);
 }
 
 .step-service-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: var(--text-main);
   margin-bottom: 1rem;
   font-family: 'Cairo', sans-serif;
@@ -304,49 +319,40 @@
 .service-list-container {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: calc(100vh - 280px);
+  gap: 0.65rem;
+  max-height: calc(100vh - 260px);
   overflow-y: auto;
-  padding-right: 0.25rem;
+  padding-right: 0.15rem;
   scrollbar-width: thin;
-}
-
-.service-list-container::-webkit-scrollbar {
-  width: 4px;
-}
-.service-list-container::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 2px;
 }
 
 /* Compact Service Row Item */
 .service-row-item {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  min-height: 72px;
-  padding: 0.75rem 1rem;
+  gap: 0.75rem;
+  min-height: 68px;
+  padding: 0.65rem 0.85rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
 }
 
-.service-row-item:hover, 
 .service-row-item:active {
+  transform: scale(0.98);
   border-color: var(--accent);
-  background: rgba(0, 212, 255, 0.06);
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.12);
+  background: rgba(0, 212, 255, 0.08);
 }
 
 .service-row-thumb {
-  width: 54px;
-  height: 54px;
-  border-radius: 0.75rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 0.65rem;
   object-fit: cover;
   flex-shrink: 0;
   border: 1px solid var(--border-color);
@@ -355,7 +361,7 @@
 
 .service-row-info {
   flex: 1;
-  min-width: 0; /* Ensures text-ellipsis works inside flex */
+  min-width: 0;
 }
 
 .service-row-title-row {
@@ -363,11 +369,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 .service-row-title {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-main);
   white-space: nowrap;
@@ -377,20 +383,20 @@
 }
 
 .service-row-desc {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .service-row-badges {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
@@ -399,8 +405,8 @@
   align-items: center;
   gap: 0.25rem;
   flex-shrink: 0;
-  font-size: 0.72rem;
-  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.45rem;
   border-radius: 1rem;
   background: rgba(0, 212, 255, 0.1);
   color: var(--accent-light);
@@ -409,8 +415,8 @@
 }
 
 .service-row-action {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(0, 212, 255, 0.1);
   display: flex;
@@ -418,58 +424,48 @@
   justify-content: center;
   color: var(--accent);
   flex-shrink: 0;
-  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-}
-
-.service-row-item:hover .service-row-action {
-  transform: translateX(-3px);
-  background: var(--accent);
-  color: #fff;
 }
 
 /* ─── 5. Step 2 Details & Chips (Horizontal Scroll-Snap) ─── */
 .booking-chips-scroll {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   overflow-x: auto;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.25rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   direction: rtl;
 }
 
 .booking-chips-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-.booking-chips-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 2px;
+  display: none;
 }
 
 .booking-chip {
   scroll-snap-align: start;
   flex-shrink: 0;
-  padding: 0.6rem 1.1rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 2rem;
   border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  min-height: 44px;
-  transition: all 0.25s ease;
+  gap: 0.35rem;
+  min-height: 40px;
+  transition: all 0.2s ease;
+  font-family: 'Cairo', sans-serif;
 }
 
 .booking-chip--active {
-  border-color: var(--accent);
+  border-color: transparent;
   background: var(--gradient-accent);
   color: #ffffff;
   font-weight: 700;
@@ -478,25 +474,31 @@
 
 .booking-picker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 120px), 1fr));
+  gap: 0.5rem;
 }
 
 .booking-picker-btn {
-  min-height: 48px;
+  min-height: 44px;
   text-align: center;
-  padding: 0.65rem;
+  padding: 0.55rem;
   border-radius: 0.6rem;
   cursor: pointer;
   background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-main);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  font-family: 'Cairo', sans-serif;
+}
+
+.booking-picker-btn:active {
+  transform: scale(0.95);
 }
 
 .booking-picker-btn--active {
@@ -510,23 +512,28 @@
 .booking-gender-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .booking-gender-card {
-  min-height: 48px;
-  padding: 0.75rem;
+  min-height: 46px;
+  padding: 0.65rem;
   border-radius: 0.6rem;
   cursor: pointer;
   background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   transition: all 0.2s ease;
+  font-family: 'Cairo', sans-serif;
+}
+
+.booking-gender-card:active {
+  transform: scale(0.96);
 }
 
 .booking-gender-card--male-active {
@@ -546,11 +553,11 @@
 /* ─── 7. Buttons & Sticky Mobile Footer Utility ─── */
 .booking-primary-btn {
   width: 100%;
-  min-height: 50px;
-  padding: 0.9rem 1.25rem;
+  min-height: 48px;
+  padding: 0.75rem 1.15rem;
   border-radius: 0.75rem;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1rem;
   background: var(--gradient-accent);
   color: #ffffff;
   border: none;
@@ -559,9 +566,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2), 0 4px 15px rgba(224, 64, 251, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.25);
+  transition: all 0.25s ease;
   font-family: 'Cairo', sans-serif;
+}
+
+.booking-primary-btn:active {
+  transform: scale(0.98);
 }
 
 .booking-primary-btn:disabled,
@@ -571,6 +582,7 @@
   cursor: not-allowed;
   border: 1px solid var(--border-color);
   box-shadow: none;
+  opacity: 0.6;
 }
 
 /* Sticky Footer Bar for Mobile Viewports */
@@ -580,14 +592,14 @@
   left: 0;
   right: 0;
   z-index: 90;
-  background: var(--glass-bg, rgba(10, 22, 40, 0.9));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
-  padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom));
-  margin: 1.5rem -1rem -1rem -1rem;
+  background: rgba(10, 16, 28, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 0.65rem 0.85rem max(0.65rem, env(safe-area-inset-bottom));
+  margin: 1.25rem -0.85rem -0.85rem -0.85rem;
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   align-items: center;
   justify-content: space-between;
 }
@@ -596,37 +608,37 @@
 .massage-accordion {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .massage-accordion-item {
-  border-radius: 0.85rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   overflow: hidden;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .massage-accordion-item--active {
   border-color: var(--accent) !important;
   background: rgba(0, 212, 255, 0.06) !important;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
 }
 
 .massage-accordion-header {
-  min-height: 48px;
-  padding: 0.85rem 1rem;
+  min-height: 44px;
+  padding: 0.75rem 0.85rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .massage-accordion-body {
-  padding: 0 1rem 1rem 1rem;
+  padding: 0 0.85rem 0.85rem 0.85rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 /* ─── 8. Loading Spinner Keyframes ─── */
@@ -642,46 +654,46 @@
 /* ─── 9. Step 4 Done Screen & Summary Card ─── */
 .step-done-container {
   text-align: center;
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   width: 100%;
 }
 
 .step-done-icon {
   color: var(--accent);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .step-done-title {
-  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
   color: var(--text-main);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-family: 'Cairo', sans-serif;
   font-weight: 700;
 }
 
 .step-done-subtitle {
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+  font-size: 0.85rem;
 }
 
 .booking-summary-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  margin: 1.25rem 0 1.75rem 0;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  margin: 1rem 0 1.25rem 0;
   text-align: right;
   direction: rtl;
 }
 
 .booking-summary-header {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--accent-light);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -693,9 +705,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.55rem 0;
+  padding: 0.45rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   gap: 0.5rem;
 }
 
@@ -705,7 +717,7 @@
 
 .booking-summary-label {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -718,11 +730,11 @@
 
 .booking-whatsapp-btn {
   width: 100%;
-  min-height: 50px;
-  padding: 0.9rem 1.25rem;
+  min-height: 48px;
+  padding: 0.8rem 1.15rem;
   border-radius: 0.75rem;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1rem;
   background: #25D366;
   color: #ffffff;
   border: none;
@@ -732,36 +744,34 @@
   justify-content: center;
   gap: 0.5rem;
   box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
   cursor: pointer;
   box-sizing: border-box;
   font-family: 'Cairo', sans-serif;
 }
 
-.booking-whatsapp-btn:hover,
 .booking-whatsapp-btn:active {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transform: scale(0.97);
 }
 
 .booking-actions-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin-top: 0.85rem;
 }
 
 .booking-reset-btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0.65rem 1rem;
   border-radius: 0.75rem;
   font-weight: 600;
   background: rgba(0, 212, 255, 0.1);
   border: 1px solid var(--accent);
   color: var(--accent);
   cursor: pointer;
-  font-size: 0.9rem;
-  min-height: 44px;
+  font-size: 0.85rem;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -770,20 +780,16 @@
   font-family: 'Cairo', sans-serif;
 }
 
-.booking-reset-btn:hover {
-  background: rgba(0, 212, 255, 0.2);
-}
-
 .booking-home-btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0.65rem 1rem;
   border-radius: 0.75rem;
   font-weight: 600;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-main);
   cursor: pointer;
-  font-size: 0.9rem;
-  min-height: 44px;
+  font-size: 0.85rem;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -792,121 +798,128 @@
   font-family: 'Cairo', sans-serif;
 }
 
-.booking-home-btn:hover {
-  border-color: var(--accent);
-}
-
-/* ─── 10. Refactored StepDetails Helper Classes ─── */
+/* ─── 10. Helper Classes ─── */
 .massage-category-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.35rem;
   border-bottom: 1px solid var(--border-color);
 }
 
 .massage-category-title {
   color: var(--accent);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin: 0;
   font-family: 'Cairo', sans-serif;
 }
 
 .massage-category-count {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
   background: rgba(0, 212, 255, 0.1);
-  padding: 0.2rem 0.6rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 1rem;
 }
 
+.massage-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
 .massage-radio-circle {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 2px solid var(--border-color);
-  background: #ffffff;
+  display: inline-block;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
 .massage-radio-circle--selected {
-  border: 6px solid var(--accent);
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
 }
 
 .massage-item-title {
-  font-weight: 700;
-  font-size: 0.95rem;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.9rem;
+  font-weight: 600;
   font-family: 'Cairo', sans-serif;
 }
 
 .massage-item-title--selected {
   color: var(--accent);
+  font-weight: 700;
+}
+
+.massage-accordion-badge {
+  font-size: 0.68rem;
+  color: #ffffff;
+  background: var(--accent);
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
 }
 
 .massage-toggle-btn {
-  background: none;
+  background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.2rem;
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
+  padding: 0.25rem;
+  display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .massage-suitability-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-right: 3px solid var(--accent);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.4rem;
   color: var(--accent-light);
-  margin: 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-bottom: 0.6rem;
+  background: rgba(0, 212, 255, 0.05);
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.4rem;
 }
 
 .massage-note-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
+  color: #ffb74d;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-bottom: 0.6rem;
   background: rgba(255, 183, 77, 0.1);
   border-right: 3px solid #ffb74d;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.4rem;
-  color: #ffb74d;
-  margin: 0.5rem 0;
-  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.3rem;
+  display: flex;
+  gap: 0.4rem;
 }
 
 .massage-select-type-btn {
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
   width: 100%;
-  padding: 0.55rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border-color);
   background: transparent;
   color: var(--accent);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   transition: all 0.2s ease;
   font-family: 'Cairo', sans-serif;
 }
@@ -917,62 +930,23 @@
   color: #ffffff;
 }
 
-.booking-date-toggle-btn {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 0.78rem;
-  cursor: pointer;
-  text-decoration: underline;
-  min-height: 44px;
-  padding: 0.5rem 0.75rem;
-  display: inline-flex;
-  align-items: center;
-}
-
-.booking-picker-btn--date {
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem 0.4rem;
-  height: auto;
-}
-
-.booking-next-row {
-  margin-top: 2rem;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.booking-home-link-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  margin: 1.5rem auto 0;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0.5rem 1rem;
-}
-
-.massage-item-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex: 1;
-  min-width: 0;
-}
-
 .massage-item-content-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
+.booking-date-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'Cairo', sans-serif;
+}
 
+.booking-picker-btn--date {
+  line-height: 1.2;
+}

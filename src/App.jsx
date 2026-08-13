@@ -7,6 +7,7 @@ import BookingPage from './pages/BookingPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import { Facebook } from 'lucide-react';
+import MobileQuickBar from './components/MobileQuickBar';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           </Routes>
         </AnimatePresence>
       </main>
+      {!isAdminRoute && <MobileQuickBar />}
 
       {/* Footer - hidden on admin pages */}
       {!isAdminRoute && (
