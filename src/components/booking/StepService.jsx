@@ -1,167 +1,216 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronLeft, Activity, Apple, Dumbbell, Clock, Tag, Sparkles, Search } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ArrowRight, 
+  Clock, 
+  Tag, 
+  Sparkles,
+  Activity,
+  Apple,
+  Dumbbell
+} from 'lucide-react';
 import { categories } from '../../servicesData';
 
-const categoryIcons = {
-  therapy: Activity,
-  nutrition: Apple,
-  training: Dumbbell,
-};
-
-const pageVariants = {
-  enter: { opacity: 0, x: -30 },
-  center: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, x: 30, transition: { duration: 0.2 } }
+// Map category to icon
+const getCategoryIcon = (key) => {
+  switch (key) {
+    case 'therapy': return <Activity size={24} />;
+    case 'nutrition': return <Apple size={24} />;
+    case 'training': return <Dumbbell size={24} />;
+    default: return <Sparkles size={24} />;
+  }
 };
 
 const StepService = ({ categoryKey, onSelectService, onBack }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const category = categories.find(c => c.id === categoryKey);
-  const CategoryIcon = categoryIcons[categoryKey] || Activity;
+  const category = categories[categoryKey];
 
   if (!category) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>لم يتم العثور على هذا القسم.</p>
-        <button onClick={onBack} className="booking-back-btn">
-          <ArrowRight size={16} /> العودة للأقسام
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>القسم غير موجود.</p>
+        <button className="booking-back-btn" onClick={onBack} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', minHeight: '44px' }}>
+          <ArrowRight size={20} />
+          العودة
         </button>
       </div>
     );
   }
 
-  const filteredServices = category.services.filter(svc =>
-    svc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    svc.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
+
+  const getBadges = (service) => {
+    const badges = [];
+    if (service.durations && service.durations.length > 0) {
+      const minDuration = Math.min(...service.durations.map(d => parseInt(d.time || d.duration || 0)));
+      if (minDuration > 0) {
+        badges.push({ id: 'duration', icon: <Clock size={12} />, text: `تبدأ من ${minDuration} دقيقة` });
+      }
+    } else if (service.duration) {
+      badges.push({ id: 'duration', icon: <Clock size={12} />, text: service.duration });
+    }
+    
+    if (service.types && service.types.length > 0) {
+      badges.push({ id: 'types', icon: <Tag size={12} />, text: `${service.types.length} أنواع` });
+    }
+    
+    if (!service.types && !service.durations && (service.focus || service.features || service.includes)) {
+       badges.push({ id: 'custom', icon: <Sparkles size={12} />, text: 'برنامج مخصص' });
+    }
+    return badges;
+  };
 
   return (
-    <motion.div key="step-service" variants={pageVariants} initial="enter" animate="center" exit="exit">
-      {/* Back Button Header */}
-      <div className="step-service-header">
-        <button onClick={onBack} className="booking-back-btn" aria-label="تغيير القسم">
-          <ArrowRight size={16} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+      {/* Header */}
+      <div className="step-service-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <button 
+          className="booking-back-btn" 
+          onClick={onBack}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            alignSelf: 'flex-start', 
+            background: 'none', 
+            border: 'none', 
+            color: 'var(--text-muted)', 
+            cursor: 'pointer', 
+            padding: 0,
+            minHeight: '44px'
+          }}
+        >
+          <ArrowRight size={20} />
           <span>تغيير القسم</span>
         </button>
+        
+        <h2 className="step-service-title" style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          اختر الخدمة من 
+          <span className="step-service-category-name" style={{ color: 'var(--accent)' }}>
+            {category.name}
+          </span>
+          <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>
+            {getCategoryIcon(categoryKey)}
+          </span>
+        </h2>
       </div>
 
-      {/* Section Title */}
-      <h3 className="step-service-title">
-        اختر الخدمة من <span className="step-service-category-name">{category.name}</span>
-      </h3>
+      {/* Services List */}
+      <motion.div 
+        className="service-list-container"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+      >
+        {category.services && category.services.map((service) => (
+          <motion.div 
+            key={service.id}
+            variants={itemVariants}
+            whileTap={{ scale: 0.98 }}
+            className="service-row-item"
+            onClick={() => onSelectService(service)}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '1rem', 
+              padding: '1rem', 
+              background: 'var(--bg-card)', 
+              borderRadius: '16px', 
+              border: '1px solid var(--border-color)', 
+              cursor: 'pointer',
+              minHeight: '44px'
+            }}
+          >
+            {/* Thumbnail */}
+            <div 
+              className="service-row-thumb"
+              style={{ 
+                width: '48px', 
+                height: '48px', 
+                borderRadius: '12px', 
+                overflow: 'hidden', 
+                flexShrink: 0,
+                background: 'var(--glass-bg)'
+              }}
+            >
+              {service.image ? (
+                <img 
+                  src={service.image} 
+                  alt={service.name} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
+                  {getCategoryIcon(categoryKey)}
+                </div>
+              )}
+            </div>
 
-      {/* Instant Search Bar */}
-      <div style={{ position: 'relative', marginBottom: '1rem' }}>
-        <Search
-          size={18}
-          color="var(--text-muted)"
-          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
-        />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="🔍 ابحث عن خدمة بالتحديد..."
-          className="booking-form-input"
-          style={{ paddingRight: '2.5rem' }}
-        />
-      </div>
+            {/* Info */}
+            <div className="service-row-info" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="service-row-title-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="service-row-title" style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: 'var(--text-main)' }}>
+                  {service.name}
+                </h3>
+              </div>
+              
+              <p className="service-row-desc" style={{ 
+                margin: 0, 
+                fontSize: '0.875rem', 
+                color: 'var(--text-muted)', 
+                display: '-webkit-box', 
+                WebkitLineClamp: 1, 
+                WebkitBoxOrient: 'vertical', 
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {service.description}
+              </p>
 
-      {/* Service Scrollable List */}
-      <div className="service-list-container">
-        {filteredServices.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem 0', fontSize: '0.9rem' }}>
-            لا توجد خدمة تطابق نتائج البحث.
-          </p>
-        ) : (
-          filteredServices.map((svc, idx) => {
-            let badgeText = null;
-            let BadgeIcon = null;
-
-            if (svc.durations && svc.durations.length > 0) {
-              badgeText = `${svc.durations.join('/')} دقيقة`;
-              BadgeIcon = Clock;
-            } else if (svc.types && svc.types.length > 0) {
-              badgeText = `${svc.types.length} أنواع متاحة`;
-              BadgeIcon = Tag;
-            } else if (svc.features || svc.indications || svc.focus || svc.includes) {
-              badgeText = 'برنامج مخصص';
-              BadgeIcon = Sparkles;
-            }
-
-            return (
-              <motion.div
-                key={svc.id}
-                className="service-row-item"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.04 }}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => onSelectService && onSelectService(svc.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onSelectService && onSelectService(svc.id);
-                  }
-                }}
-              >
-                {/* Thumbnail Image with Fallback */}
-                {svc.image ? (
-                  <img
-                    src={svc.image}
-                    alt={svc.name}
-                    className="service-row-thumb"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.style.display = 'none';
-                      if (e.target.nextSibling) {
-                        e.target.nextSibling.style.display = 'flex';
-                      }
+              <div className="service-row-badges" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
+                {getBadges(service).map(badge => (
+                  <span 
+                    key={badge.id}
+                    className="service-badge"
+                    style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '0.25rem', 
+                      fontSize: '0.75rem', 
+                      padding: '0.125rem 0.5rem', 
+                      borderRadius: '999px', 
+                      background: 'var(--glass-bg)', 
+                      color: 'var(--accent)',
+                      border: '1px solid var(--border-color)'
                     }}
-                  />
-                ) : null}
-                <div
-                  className="service-row-thumb"
-                  style={{
-                    display: svc.image ? 'none' : 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <CategoryIcon size={24} color="var(--accent)" />
-                </div>
+                  >
+                    {badge.icon}
+                    {badge.text}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-                {/* Service Info */}
-                <div className="service-row-info">
-                  <div className="service-row-title-row">
-                    <h4 className="service-row-title">{svc.name}</h4>
-                  </div>
-                  <p className="service-row-desc">{svc.description}</p>
-                  {badgeText && (
-                    <div className="service-row-badges">
-                      <span className="service-badge">
-                        {BadgeIcon && <BadgeIcon size={12} />}
-                        <span>{badgeText}</span>
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* RTL Navigation Chevron */}
-                <div className="service-row-action" aria-hidden="true">
-                  <ChevronLeft size={18} />
-                </div>
-              </motion.div>
-            );
-          })
-        )}
-      </div>
-    </motion.div>
+            {/* Action Icon */}
+            <div className="service-row-action" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+              <ChevronLeft size={20} />
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
   );
 };
 

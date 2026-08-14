@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
@@ -12,11 +12,14 @@ import './App.css';
 
 function App() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const isAdminRoute = location.pathname.startsWith('/orchid-admin');
+  const isKioskMode = searchParams.get('kiosk') === 'true' || searchParams.get('mode') === 'kiosk';
+  const hideChrome = isAdminRoute || isKioskMode;
 
   return (
     <div className="App">
-      {!isAdminRoute && <Navbar />}
+      {!hideChrome && <Navbar />}
       <main>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
@@ -27,10 +30,10 @@ function App() {
           </Routes>
         </AnimatePresence>
       </main>
-      {!isAdminRoute && <MobileQuickBar />}
+      {!hideChrome && <MobileQuickBar />}
 
       {/* Footer - hidden on admin pages */}
-      {!isAdminRoute && (
+      {!hideChrome && (
         <footer style={{ 
           padding: 'clamp(1.5rem, 4vw, 3rem) 0', 
           textAlign: 'center', 

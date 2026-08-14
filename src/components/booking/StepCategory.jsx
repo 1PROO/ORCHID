@@ -1,29 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Apple, Dumbbell, ChevronLeft, Zap } from 'lucide-react';
+import { Activity, Apple, Dumbbell, ChevronLeft, Sparkles } from 'lucide-react';
 
-const CATEGORIES = [
-  {
-    id: 'therapy',
-    icon: Activity,
-    label: 'الجلسات العلاجية والمساج',
-    desc: 'مساج استرخائي، علاجي، حجامة، إبر صينية',
-    gradient: 'linear-gradient(135deg, #0a1628 0%, #0d1f3c 100%)',
-    popular: true
+const categories = [
+  { 
+    id: 'therapy', 
+    icon: Activity, 
+    label: 'الجلسات العلاجية والمساج', 
+    desc: 'مساج استرخائي، علاجي، حجامة، إبر صينية', 
+    emoji: '🧖',
+    badge: 'الأكثر طلباً' 
   },
-  {
-    id: 'nutrition',
-    icon: Apple,
-    label: 'برامج التغذية العلاجية',
-    desc: 'تغذية رياضية، علاج نحافة، علاج سمنة',
-    gradient: 'linear-gradient(135deg, #0a1a28 0%, #0d2a3c 100%)'
+  { 
+    id: 'nutrition', 
+    icon: Apple, 
+    label: 'برامج التغذية العلاجية', 
+    desc: 'تغذية رياضية، علاج نحافة، علاج سمنة', 
+    emoji: '🥗' 
   },
-  {
-    id: 'training',
-    icon: Dumbbell,
-    label: 'التدريب الرياضي الشخصي',
-    desc: 'تدريب شخصي، برنامج لياقة متكامل',
-    gradient: 'linear-gradient(135deg, #1a0a28 0%, #2a0d3c 100%)'
+  { 
+    id: 'training', 
+    icon: Dumbbell, 
+    label: 'التدريب الرياضي الشخصي', 
+    desc: 'تدريب شخصي، برنامج لياقة متكامل', 
+    emoji: '💪' 
   }
 ];
 
@@ -31,95 +31,151 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08 }
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
   }
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 24 }
+  }
 };
 
 const StepCategory = ({ onSelectCategory }) => {
   return (
-    <motion.div
-      className="step-category-container"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Quick Express Banner */}
-      <motion.div
-        variants={cardVariants}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => onSelectCategory && onSelectCategory('therapy')}
-        style={{
-          background: 'rgba(0, 212, 255, 0.1)',
-          border: '1px solid var(--accent)',
-          borderRadius: '1rem',
-          padding: '0.75rem 1rem',
-          marginBottom: '1.25rem',
+    <div className="step-category-container" style={{ direction: 'rtl', padding: '1rem' }}>
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="step-category-title" style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '700', 
+          textAlign: 'center', 
+          marginBottom: '2rem',
+          color: 'var(--text-main)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          cursor: 'pointer'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'var(--gradient-accent)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: '#fff'
-          }}>
-            <Zap size={18} />
-          </div>
-          <div>
-            <div style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Cairo, sans-serif' }}>
-              ⚡ حجز مساج سريع
-            </div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-              اضغط هنا للانتقال المباشر لاختيار نوع الجلسة
-            </div>
-          </div>
-        </div>
-        <ChevronLeft size={18} color="var(--accent)" />
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}>
+          <Sparkles size={24} color="var(--accent)" />
+          اختر القسم المناسب لك
+        </h2>
       </motion.div>
 
-      <h3 className="step-category-title">أو اختر القسم المناسب:</h3>
-      
-      <div className="step-category-grid">
-        {CATEGORIES.map((cat) => {
+      <motion.div 
+        className="step-category-grid"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}
+      >
+        {categories.map((cat) => {
           const Icon = cat.icon;
           return (
-            <motion.div
+            <motion.button
               key={cat.id}
-              variants={cardVariants}
-              whileTap={{ scale: 0.97 }}
               className="category-tap-target"
-              style={{ background: cat.gradient, position: 'relative' }}
-              onClick={() => onSelectCategory && onSelectCategory(cat.id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelectCategory && onSelectCategory(cat.id);
-                }
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => onSelectCategory(cat.id)}
+              style={{
+                width: '100%',
+                background: 'var(--bg-card)',
+                backgroundImage: 'linear-gradient(145deg, rgba(14,14,26,1) 0%, rgba(20,20,35,1) 100%)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '1.25rem',
+                padding: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                cursor: 'pointer',
+                textAlign: 'right',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
               }}
             >
-              <div className="category-icon-wrapper">
-                <Icon size={24} color="var(--accent)" />
+              {cat.badge && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '1.5rem',
+                  background: 'var(--gradient-accent)',
+                  color: '#fff',
+                  padding: '0.25rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  borderBottomLeftRadius: '0.5rem',
+                  borderBottomRightRadius: '0.5rem',
+                  boxShadow: '0 2px 10px rgba(0, 212, 255, 0.3)'
+                }}>
+                  {cat.badge}
+                </div>
+              )}
+
+              <div className="category-icon-wrapper" style={{
+                width: '3.5rem',
+                height: '3.5rem',
+                borderRadius: '1rem',
+                background: 'rgba(0, 212, 255, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Icon size={28} color="var(--accent)" />
               </div>
-              <div className="category-text-content">
-                <h4 className="category-label">{cat.label}</h4>
-                <p className="category-desc">{cat.desc}</p>
+
+              <div className="category-text-content" style={{ flexGrow: 1 }}>
+                <h3 className="category-label" style={{
+                  margin: 0,
+                  fontSize: '1.15rem',
+                  fontWeight: '700',
+                  color: 'var(--text-main)',
+                  marginBottom: '0.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  {cat.label} <span>{cat.emoji}</span>
+                </h3>
+                <p className="category-desc" style={{
+                  margin: 0,
+                  fontSize: '0.85rem',
+                  color: 'var(--text-muted)',
+                  lineHeight: '1.4'
+                }}>
+                  {cat.desc}
+                </p>
               </div>
-              <ChevronLeft size={20} className="category-chevron" />
-            </motion.div>
+
+              <div className="category-chevron" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-muted)'
+              }}>
+                <ChevronLeft size={24} />
+              </div>
+            </motion.button>
           );
         })}
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

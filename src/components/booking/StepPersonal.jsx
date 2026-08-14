@@ -1,212 +1,305 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Send, Loader2, Calendar, Clock, UserCheck, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Send, Loader2, ShieldCheck } from 'lucide-react';
 
 const pageVariants = {
-  enter: { opacity: 0, x: -30 },
-  center: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, x: 30, transition: { duration: 0.2 } }
+  initial: { opacity: 0, x: 20 },
+  in: { opacity: 1, x: 0 },
+  out: { opacity: 0, x: -20 },
 };
 
-const StepPersonal = ({
-  formData = {},
-  onUpdateFormData,
-  onSubmit,
-  onBack,
-  isSubmitting = false
-}) => {
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const StepPersonal = ({ formData, onUpdateFormData, onSubmit, onBack, isSubmitting }) => {
+  const { name = '', gender = '', phone = '', notes = '' } = formData || {};
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (onUpdateFormData) {
-      onUpdateFormData({ [name]: value });
-    }
+    onUpdateFormData({ [name]: value });
   };
 
-  const handleGenderSelect = (genderValue) => {
-    if (onUpdateFormData) {
-      onUpdateFormData({ gender: genderValue });
-    }
+  const handleGenderSelect = (selectedGender) => {
+    onUpdateFormData({ gender: selectedGender });
   };
+
+  const isValid = name.trim().length > 0 && gender !== '' && phone.trim().length > 0;
+
+  const isMaleActive = gender === 'ذكر' || gender === 'male';
+  const isFemaleActive = gender === 'أنثى' || gender === 'female';
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onSubmit) {
-      onSubmit(e);
+    if (isValid && !isSubmitting) {
+      onSubmit();
     }
   };
 
-  const isFormValid = Boolean(
-    formData.name &&
-    formData.name.trim() &&
-    formData.gender &&
-    formData.phone &&
-    formData.phone.trim()
-  );
-
-  const isDisabled = isSubmitting || !isFormValid;
-
   return (
     <motion.div
-      key="step-personal"
+      initial="initial"
+      animate="in"
+      exit="out"
       variants={pageVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
+      transition={pageTransition}
       className="step-personal-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        width: '100%',
+      }}
     >
-      {/* Header back button */}
-      <div className="step-service-header" style={{ marginBottom: '1rem' }}>
-        <button
-          type="button"
-          onClick={onBack}
-          className="booking-back-btn"
-          aria-label="رجوع للتفاصيل"
-        >
-          <ArrowRight size={16} />
-          <span>رجوع للتفاصيل</span>
-        </button>
-      </div>
-
-      <h3 className="step-service-title" style={{ marginBottom: '1.25rem' }}>
-        البيانات <span className="step-service-category-name">الشخصية وتأكيد الحجز</span>
-      </h3>
-
-      {/* Mini Summary Preview Box */}
-      <div
-        style={{
-          background: 'rgba(0, 212, 255, 0.06)',
-          border: '1px solid rgba(0, 212, 255, 0.2)',
-          borderRadius: '0.85rem',
-          padding: '0.85rem 1rem',
-          marginBottom: '1.25rem',
-          direction: 'rtl'
-        }}
-      >
-        <div style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontFamily: 'Cairo, sans-serif' }}>
-          <ShieldCheck size={16} />
-          <span>تفاصيل موعدك المحدد:</span>
+      <div className="booking-summary-preview" style={{
+        padding: '16px',
+        borderRadius: '16px',
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--border-color)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
+          <ShieldCheck size={20} />
+          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>تفاصيل موعدك المحدد:</h3>
         </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          {formData.subType && (
-            <div>🎯 <strong>الخدمة:</strong> {formData.subType}</div>
-          )}
-          {formData.date && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <span>📅 {formData.date}</span>
-              {formData.time && <span>⏰ {formData.time}</span>}
-              {formData.duration && <span>⏳ ({formData.duration} دقيقة)</span>}
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+          {formData.service && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>الخدمة:</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>
+                {formData.service} {formData.subType ? `- ${formData.subType}` : ''}
+              </span>
             </div>
           )}
+          
           {formData.goal && (
-            <div>🎯 <strong>الهدف:</strong> {formData.goal}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>الهدف:</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>{formData.goal}</span>
+            </div>
+          )}
+          
+          {formData.date && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>التاريخ:</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>{formData.date}</span>
+            </div>
+          )}
+          
+          {formData.time && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>الوقت:</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>
+                {formData.time} {formData.duration ? `(${formData.duration})` : ''}
+              </span>
+            </div>
           )}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
-        {/* Full Name */}
-        <div>
-          <label className="booking-form-label">الاسم بالكامل *</label>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label className="booking-form-label" htmlFor="name" style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
+            الاسم بالكامل <span style={{ color: '#ef4444' }}>*</span>
+          </label>
           <input
-            type="text"
+            id="name"
             name="name"
-            value={formData.name || ''}
-            onChange={handleInputChange}
-            placeholder="أدخل اسمك بالكامل"
+            type="text"
             className="booking-form-input booking-touch-target"
+            value={name}
+            onChange={handleInputChange}
+            placeholder="أدخل اسمك الكامل"
             required
             autoFocus
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              backgroundColor: 'var(--bg-main)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              fontSize: '16px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+            }}
           />
         </div>
 
-        {/* Gender Touch Cards */}
-        <div>
-          <label className="booking-form-label">الجنس *</label>
-          <div className="booking-gender-grid">
-            <button
-              type="button"
-              className={`booking-gender-card booking-touch-target ${
-                formData.gender === 'male' || formData.gender === 'ذكر'
-                  ? 'booking-gender-card--male-active'
-                  : ''
-              }`}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label className="booking-form-label" style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
+            الجنس <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          <div className="booking-gender-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div
+              className={`booking-gender-card booking-touch-target ${isMaleActive ? 'booking-gender-card--male-active' : ''}`}
               onClick={() => handleGenderSelect('ذكر')}
-              aria-pressed={formData.gender === 'male' || formData.gender === 'ذكر'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                borderRadius: '12px',
+                backgroundColor: isMaleActive ? 'rgba(0, 212, 255, 0.1)' : 'var(--bg-main)',
+                border: isMaleActive ? '2px solid #00d4ff' : '1px solid var(--border-color)',
+                color: isMaleActive ? '#00d4ff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                fontWeight: isMaleActive ? 600 : 400,
+                transition: 'all 0.2s',
+                minHeight: '44px'
+              }}
             >
-              <span style={{ fontSize: '1.25rem' }}>♂</span>
-              <span>ذكر</span>
-            </button>
-
-            <button
-              type="button"
-              className={`booking-gender-card booking-touch-target ${
-                formData.gender === 'female' || formData.gender === 'أنثى'
-                  ? 'booking-gender-card--female-active'
-                  : ''
-              }`}
+              <span style={{ fontSize: '1.2rem' }}>♂</span>
+              <span style={{ fontSize: '1rem' }}>ذكر</span>
+            </div>
+            <div
+              className={`booking-gender-card booking-touch-target ${isFemaleActive ? 'booking-gender-card--female-active' : ''}`}
               onClick={() => handleGenderSelect('أنثى')}
-              aria-pressed={formData.gender === 'female' || formData.gender === 'أنثى'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                borderRadius: '12px',
+                backgroundColor: isFemaleActive ? 'rgba(224, 64, 251, 0.1)' : 'var(--bg-main)',
+                border: isFemaleActive ? '2px solid #e040fb' : '1px solid var(--border-color)',
+                color: isFemaleActive ? '#e040fb' : 'var(--text-muted)',
+                cursor: 'pointer',
+                fontWeight: isFemaleActive ? 600 : 400,
+                transition: 'all 0.2s',
+                minHeight: '44px'
+              }}
             >
-              <span style={{ fontSize: '1.25rem' }}>♀</span>
-              <span>أنثى</span>
-            </button>
+              <span style={{ fontSize: '1.2rem' }}>♀</span>
+              <span style={{ fontSize: '1rem' }}>أنثى</span>
+            </div>
           </div>
         </div>
 
-        {/* Phone Input */}
-        <div>
-          <label className="booking-form-label">رقم الموبايل (واتساب) *</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label className="booking-form-label" htmlFor="phone" style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
+            رقم الموبايل (واتساب) <span style={{ color: '#ef4444' }}>*</span>
+          </label>
           <input
-            type="tel"
+            id="phone"
             name="phone"
-            value={formData.phone || ''}
+            type="tel"
+            dir="ltr"
+            className="booking-form-input booking-touch-target"
+            value={phone}
             onChange={handleInputChange}
             placeholder="01xxxxxxxxx"
-            className="booking-form-input booking-touch-target"
             required
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              backgroundColor: 'var(--bg-main)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              fontSize: '16px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+              textAlign: 'right'
+            }}
           />
         </div>
 
-        {/* Notes Input */}
-        <div>
-          <label className="booking-form-label">ملاحظات إضافية (اختياري)</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label className="booking-form-label" htmlFor="notes" style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-main)' }}>
+            ملاحظات إضافية <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>(اختياري)</span>
+          </label>
           <textarea
+            id="notes"
             name="notes"
-            value={formData.notes || ''}
-            onChange={handleInputChange}
-            placeholder="أي تفاصيل أو ملاحظات تريد إضافتها..."
+            rows="2"
             className="booking-form-textarea booking-touch-target"
-            rows={2}
+            value={notes}
+            onChange={handleInputChange}
+            placeholder="أي تفاصيل أخرى تود إضافتها..."
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              backgroundColor: 'var(--bg-main)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              fontSize: '16px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+              resize: 'vertical'
+            }}
           />
         </div>
 
-        {/* Sticky Mobile Action Footer */}
-        <div className="booking-sticky-footer">
+        <div className="booking-sticky-footer" style={{
+          display: 'flex',
+          gap: '12px',
+          marginTop: '24px',
+          paddingTop: '16px',
+          borderTop: '1px solid var(--border-color)'
+        }}>
           <button
             type="button"
             onClick={onBack}
-            className="booking-back-btn"
-            aria-label="رجوع للتفاصيل"
+            className="booking-back-btn booking-touch-target"
+            disabled={isSubmitting}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '14px 20px',
+              borderRadius: '12px',
+              backgroundColor: 'var(--bg-card)',
+              color: 'var(--text-main)',
+              border: '1px solid var(--border-color)',
+              cursor: 'pointer',
+              fontWeight: 600,
+              minHeight: '44px',
+              opacity: isSubmitting ? 0.5 : 1
+            }}
           >
-            <ArrowRight size={16} />
+            <ArrowRight size={20} />
             <span>رجوع</span>
           </button>
-
+          
           <button
             type="submit"
-            disabled={isDisabled}
-            className={`booking-primary-btn ${isDisabled ? 'booking-primary-btn--disabled' : ''}`}
-            style={{ flex: 1 }}
+            className={`booking-primary-btn booking-touch-target ${(!isValid || isSubmitting) ? 'booking-primary-btn--disabled' : ''}`}
+            disabled={!isValid || isSubmitting}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '14px 20px',
+              borderRadius: '12px',
+              background: (!isValid || isSubmitting) ? 'var(--bg-card)' : 'var(--gradient-accent)',
+              color: (!isValid || isSubmitting) ? 'var(--text-muted)' : '#fff',
+              border: (!isValid || isSubmitting) ? '1px solid var(--border-color)' : 'none',
+              cursor: (!isValid || isSubmitting) ? 'not-allowed' : 'pointer',
+              fontWeight: 600,
+              minHeight: '44px'
+            }}
           >
             {isSubmitting ? (
               <>
-                <Loader2 size={18} className="booking-spin-icon" />
+                <Loader2 size={20} className="booking-spin-icon" style={{ animation: 'spin 1s linear infinite' }} />
                 <span>جاري الإرسال...</span>
               </>
             ) : (
               <>
-                <Send size={18} />
-                <span>تأكيد وإرسال الحجز عبر واتساب ⚡</span>
+                <span>تأكيد وإرسال الحجز عبر واتساب</span>
+                <Send size={20} />
               </>
             )}
           </button>
