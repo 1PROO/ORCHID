@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, ChevronDown, ChevronUp, CheckCircle2,
-  Clock, Calendar, Sparkles, Info, AlertTriangle, Activity
+  Clock, Sparkles, Info, AlertTriangle, Search, Zap, Check
 } from 'lucide-react';
 import { massageCategories } from '../../data/massageData';
 
@@ -26,7 +26,13 @@ const DURATIONS = [30, 60, 90];
 
 const EXPERIENCE_LEVELS = ['مبتدئ', 'متوسط', 'متقدم'];
 
-// Helper to generate upcoming 7 dates formatted in Arabic
+const POPULAR_PRESETS = [
+  { id: 'rel-1', name: 'مساج الاسترخاء', catId: 'relaxation' },
+  { id: 'rel-2', name: 'المساج السويدي', catId: 'relaxation' },
+  { id: 'ther-1', name: 'مساج علاج الآلام العضلية', catId: 'therapeutic' },
+  { id: 'sport-1', name: 'المساج الرياضي', catId: 'sports' },
+];
+
 function getUpcomingDates() {
   const dates = [];
   const daysAr = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -67,14 +73,13 @@ const StepDetails = ({
   const activeCategory = categoryKey || formData.categoryId || 'therapy';
   const isTherapy = activeCategory === 'therapy';
 
-  // Category chip selection state (default to first category in massageCategories)
   const [activeCatId, setActiveCatId] = useState(massageCategories[0]?.id || 'relaxation');
-  // Accordion expanded state map (type.id -> boolean)
   const [expandedTypes, setExpandedTypes] = useState({});
-  // Show manual date input flag
   const [showCustomDate, setShowCustomDate] = useState(false);
+  const [massageSearch, setMassageSearch] = useState('');
 
   const currentMassageCat = massageCategories.find(c => c.id === activeCatId) || massageCategories[0];
+  const upcomingDates = getUpcomingDates();
 
   const toggleAccordion = (typeId, e) => {
     e.stopPropagation();
@@ -85,17 +90,38 @@ const StepDetails = ({
   };
 
   const handleSelectType = (type) => {
-    if (onUpdateFormData) {
-      onUpdateFormData({
-        subType: type.name,
-        subTypeId: type.id
-      });
+    const updates = {
+      subType: type.name,
+      subTypeId: type.id
+    };
+    if (!formData.duration) {
+      updates.duration = '60';
     }
-    // Automatically expand selected item details if collapsed
+    if (!formData.date && upcomingDates.length > 0) {
+      updates.date = upcomingDates[0].fullValue;
+    }
+    if (onUpdateFormData) {
+      onUpdateFormData(updates);
+    }
     setExpandedTypes(prev => ({
       ...prev,
       [type.id]: true
     }));
+  };
+
+  const handleSelectPreset = (preset) => {
+    setActiveCatId(preset.catId);
+    const updates = {
+      subType: preset.name,
+      subTypeId: preset.id,
+      duration: '60'
+    };
+    if (!formData.date && upcomingDates.length > 0) {
+      updates.date = upcomingDates[0].fullValue;
+    }
+    if (onUpdateFormData) {
+      onUpdateFormData(updates);
+    }
   };
 
   const handleUpdate = (fields) => {
@@ -104,7 +130,6 @@ const StepDetails = ({
     }
   };
 
-  // Mandatory fields validation
   const isTherapyValid = Boolean(formData.subType && formData.date && formData.time);
   const isNutritionTrainingValid = Boolean(
     formData.weight &&
@@ -114,7 +139,10 @@ const StepDetails = ({
   );
   const isValid = isTherapy ? isTherapyValid : isNutritionTrainingValid;
 
-  const upcomingDates = getUpcomingDates();
+  const filteredTypes = currentMassageCat.types.filter(t =>
+    t.name.toLowerCase().includes(massageSearch.toLowerCase()) ||
+    t.description.toLowerCase().includes(massageSearch.toLowerCase())
+  );
 
   return (
     <motion.div
@@ -139,16 +167,54 @@ const StepDetails = ({
       </div>
 
       <h3 className="step-service-title" style={{ marginBottom: '1.25rem' }}>
-        تفاصيل <span className="step-service-category-name">الحجز</span>
+        تفاصيل <span className="step-service-category-name">الحجز والموعد</span>
       </h3>
 
       {isTherapy ? (
         <div className="step-details-therapy-flow" style={{ display: 'grid', gap: '1.5rem' }}>
           
+          {/* Quick Presets Bar */}
+          <div>
+            <label className="booking-form-label" style={{ fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Zap size={14} color="var(--accent)" />
+              <span>الأكثر طلباً (اختيار فوري بضغطة واحدة):</span>
+            </label>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              {POPULAR_PRESETS.map((preset) => {
+                const isSelected = formData.subType === preset.name;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectPreset(preset)}
+                    style={{
+                      padding: '0.45rem 0.85rem',
+                      borderRadius: '1.5rem',
+                      border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border-color)',
+                      background: isSelected ? 'rgba(0, 212, 255, 0.15)' : 'rgba(255,255,255,0.03)',
+                      color: isSelected ? 'var(--accent)' : 'var(--text-main)',
+                      fontSize: '0.82rem',
+                      fontWeight: isSelected ? 700 : 500,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      transition: 'all 0.2s ease',
+                      fontFamily: 'Cairo, sans-serif'
+                    }}
+                  >
+                    {isSelected && <Check size={12} />}
+                    <span>{preset.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* 1. Category Chips Bar (Scroll-Snap) */}
           <div>
             <label className="booking-form-label" style={{ fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              اختر قسم المساج المطلوب:
+              أو تصفح أقسام المساج والعلاج:
             </label>
             <div className="booking-chips-scroll">
               {massageCategories.map((cat) => {
@@ -157,7 +223,10 @@ const StepDetails = ({
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setActiveCatId(cat.id)}
+                    onClick={() => {
+                      setActiveCatId(cat.id);
+                      setMassageSearch('');
+                    }}
                     className={`booking-chip ${isActive ? 'booking-chip--active' : ''}`}
                     aria-pressed={isActive}
                   >
@@ -169,6 +238,23 @@ const StepDetails = ({
             </div>
           </div>
 
+          {/* Search box for massage types */}
+          <div style={{ position: 'relative' }}>
+            <Search
+              size={16}
+              color="var(--text-muted)"
+              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
+            />
+            <input
+              type="text"
+              value={massageSearch}
+              onChange={(e) => setMassageSearch(e.target.value)}
+              placeholder="🔍 بحث سريع في هذا القسم..."
+              className="booking-form-input"
+              style={{ paddingRight: '2.5rem', fontSize: '0.85rem' }}
+            />
+          </div>
+
           {/* 2. Massage Types Accordion List */}
           <div>
             <div className="massage-category-header">
@@ -177,107 +263,96 @@ const StepDetails = ({
                 <span>{currentMassageCat.title}</span>
               </h4>
               <span className="massage-category-count">
-                {currentMassageCat.types.length} أنواع
+                {filteredTypes.length} أنواع
               </span>
             </div>
 
-            <div className="massage-accordion" style={{ display: 'grid', gap: '0.75rem' }}>
-              {currentMassageCat.types.map((type) => {
-                const isSelected = formData.subType === type.name || formData.subTypeId === type.id;
-                const isExpanded = Boolean(expandedTypes[type.id]);
+            <div className="massage-accordion" style={{ display: 'grid', gap: '0.65rem' }}>
+              {filteredTypes.length === 0 ? (
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem 0' }}>
+                  لا توجد نتائج بحث في هذا القسم.
+                </p>
+              ) : (
+                filteredTypes.map((type) => {
+                  const isSelected = formData.subType === type.name || formData.subTypeId === type.id;
+                  const isExpanded = Boolean(expandedTypes[type.id]);
 
-                return (
-                  <div
-                    key={type.id}
-                    className={`massage-accordion-item ${isSelected ? 'massage-accordion-item--active' : ''}`}
-                  >
-                    {/* Accordion Header / Tappable row */}
+                  return (
                     <div
-                      className="massage-accordion-header booking-touch-target"
-                      onClick={() => handleSelectType(type)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleSelectType(type);
-                        }
-                      }}
+                      key={type.id}
+                      className={`massage-accordion-item ${isSelected ? 'massage-accordion-item--active' : ''}`}
                     >
-                      <div className="massage-item-header">
-                        <span className={`massage-radio-circle ${isSelected ? 'massage-radio-circle--selected' : ''}`} />
-                        <span className={`massage-item-title ${isSelected ? 'massage-item-title--selected' : ''}`}>
-                          {type.name}
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {isSelected && (
-                          <span className="massage-accordion-badge">
-                            محدد
+                      {/* Accordion Header / Tappable row */}
+                      <div
+                        className="massage-accordion-header booking-touch-target"
+                        onClick={() => handleSelectType(type)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleSelectType(type);
+                          }
+                        }}
+                      >
+                        <div className="massage-item-header">
+                          <span className={`massage-radio-circle ${isSelected ? 'massage-radio-circle--selected' : ''}`} />
+                          <span className={`massage-item-title ${isSelected ? 'massage-item-title--selected' : ''}`}>
+                            {type.name}
                           </span>
-                        )}
-                        <button
-                          type="button"
-                          className="massage-toggle-btn booking-touch-target"
-                          onClick={(e) => toggleAccordion(type.id, e)}
-                          aria-label={isExpanded ? 'طي التفاصيل' : 'عرض التفاصيل'}
-                        >
-                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                        </button>
-                      </div>
-                    </div>
+                        </div>
 
-                    {/* Accordion Body Details */}
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="massage-accordion-body"
-                        >
-                          <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, margin: '0.75rem 0' }}>
-                            {type.description}
-                          </p>
-
-                          {type.suitability && (
-                            <div className="massage-suitability-box">
-                              <Info size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                              <span><strong>الملائمة:</strong> {type.suitability}</span>
-                            </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {isSelected && (
+                            <span className="massage-accordion-badge">
+                              تم التحديد ✓
+                            </span>
                           )}
-
-                          {type.note && (
-                            <div className="massage-note-box">
-                              <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                              <span>{type.note}</span>
-                            </div>
-                          )}
-
                           <button
                             type="button"
-                            onClick={() => handleSelectType(type)}
-                            className={`massage-select-type-btn booking-touch-target ${
-                              isSelected ? 'massage-select-type-btn--selected' : ''
-                            }`}
+                            className="massage-toggle-btn booking-touch-target"
+                            onClick={(e) => toggleAccordion(type.id, e)}
+                            aria-label={isExpanded ? 'طي التفاصيل' : 'عرض التفاصيل'}
                           >
-                            {isSelected ? (
-                              <>
-                                <CheckCircle2 size={16} />
-                                <span>تم تحديد هذا النوع</span>
-                              </>
-                            ) : (
-                              <span>اختر هذا النوع</span>
-                            )}
+                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                           </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+                        </div>
+                      </div>
+
+                      {/* Accordion Body Details */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="massage-accordion-body"
+                          >
+                            <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, margin: '0.65rem 0' }}>
+                              {type.description}
+                            </p>
+
+                            {type.suitability && (
+                              <div className="massage-suitability-box">
+                                <Info size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                <span><strong>الملائمة:</strong> {type.suitability}</span>
+                              </div>
+                            )}
+
+                            {type.note && (
+                              <div className="massage-note-box">
+                                <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                <span>{type.note}</span>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -376,7 +451,7 @@ const StepDetails = ({
           </div>
         </div>
       ) : (
-        /* Nutrition & Training Flow: Single column stacked inputs */
+        /* Nutrition & Training Flow */
         <div className="step-details-nutrition-flow" style={{ display: 'grid', gap: '1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.75rem' }}>
             <div>
@@ -385,7 +460,7 @@ const StepDetails = ({
                 type="number"
                 name="weight"
                 value={formData.weight || ''}
-                onChange={(e) => handleUpdate({ weight: e.target.value })}
+                onChange={(e) => handleUpdate({ weight: e.target.value, experience: formData.experience || 'مبتدئ' })}
                 placeholder="75"
                 className="booking-form-input booking-touch-target"
                 required
@@ -397,7 +472,7 @@ const StepDetails = ({
                 type="number"
                 name="height"
                 value={formData.height || ''}
-                onChange={(e) => handleUpdate({ height: e.target.value })}
+                onChange={(e) => handleUpdate({ height: e.target.value, experience: formData.experience || 'مبتدئ' })}
                 placeholder="175"
                 className="booking-form-input booking-touch-target"
                 required
@@ -454,7 +529,7 @@ const StepDetails = ({
       )}
 
       {/* Navigation Buttons Row */}
-      <div className="booking-next-row">
+      <div className="booking-next-row" style={{ marginTop: '1.5rem' }}>
         <button
           type="button"
           onClick={onNext}
@@ -462,7 +537,7 @@ const StepDetails = ({
           className={`booking-primary-btn ${!isValid ? 'booking-primary-btn--disabled' : ''}`}
           style={{ flex: 1 }}
         >
-          <span>التالي — بياناتك الشخصية</span>
+          <span>التالي — أدخل بياناتك الشخصية ⚡</span>
         </button>
       </div>
     </motion.div>

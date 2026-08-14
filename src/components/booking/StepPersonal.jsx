@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Send, Loader2 } from 'lucide-react';
+import { ArrowRight, Send, Loader2, Calendar, Clock, UserCheck, ShieldCheck } from 'lucide-react';
 
 const pageVariants = {
   enter: { opacity: 0, x: -30 },
@@ -35,7 +35,6 @@ const StepPersonal = ({
     }
   };
 
-  // Submit button is disabled if mandatory fields (name, gender, phone) are missing or form is submitting
   const isFormValid = Boolean(
     formData.name &&
     formData.name.trim() &&
@@ -69,8 +68,40 @@ const StepPersonal = ({
       </div>
 
       <h3 className="step-service-title" style={{ marginBottom: '1.25rem' }}>
-        البيانات <span className="step-service-category-name">الشخصية</span>
+        البيانات <span className="step-service-category-name">الشخصية وتأكيد الحجز</span>
       </h3>
+
+      {/* Mini Summary Preview Box */}
+      <div
+        style={{
+          background: 'rgba(0, 212, 255, 0.06)',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          borderRadius: '0.85rem',
+          padding: '0.85rem 1rem',
+          marginBottom: '1.25rem',
+          direction: 'rtl'
+        }}
+      >
+        <div style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontFamily: 'Cairo, sans-serif' }}>
+          <ShieldCheck size={16} />
+          <span>تفاصيل موعدك المحدد:</span>
+        </div>
+        <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          {formData.subType && (
+            <div>🎯 <strong>الخدمة:</strong> {formData.subType}</div>
+          )}
+          {formData.date && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span>📅 {formData.date}</span>
+              {formData.time && <span>⏰ {formData.time}</span>}
+              {formData.duration && <span>⏳ ({formData.duration} دقيقة)</span>}
+            </div>
+          )}
+          {formData.goal && (
+            <div>🎯 <strong>الهدف:</strong> {formData.goal}</div>
+          )}
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
         {/* Full Name */}
@@ -84,6 +115,7 @@ const StepPersonal = ({
             placeholder="أدخل اسمك بالكامل"
             className="booking-form-input booking-touch-target"
             required
+            autoFocus
           />
         </div>
 
@@ -137,14 +169,14 @@ const StepPersonal = ({
 
         {/* Notes Input */}
         <div>
-          <label className="booking-form-label">ملاحظات إضافية</label>
+          <label className="booking-form-label">ملاحظات إضافية (اختياري)</label>
           <textarea
             name="notes"
             value={formData.notes || ''}
             onChange={handleInputChange}
-            placeholder="أي تفاصيل أو ملاحظات خاصة تريد إضافتها..."
+            placeholder="أي تفاصيل أو ملاحظات تريد إضافتها..."
             className="booking-form-textarea booking-touch-target"
-            rows={3}
+            rows={2}
           />
         </div>
 
@@ -174,7 +206,7 @@ const StepPersonal = ({
             ) : (
               <>
                 <Send size={18} />
-                <span>تأكيد الحجز عبر واتساب</span>
+                <span>تأكيد وإرسال الحجز عبر واتساب ⚡</span>
               </>
             )}
           </button>

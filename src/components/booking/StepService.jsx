@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronLeft, Activity, Apple, Dumbbell, Clock, Tag, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Activity, Apple, Dumbbell, Clock, Tag, Sparkles, Search } from 'lucide-react';
 import { categories } from '../../servicesData';
 
 const categoryIcons = {
@@ -16,6 +16,7 @@ const pageVariants = {
 };
 
 const StepService = ({ categoryKey, onSelectService, onBack }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const category = categories.find(c => c.id === categoryKey);
   const CategoryIcon = categoryIcons[categoryKey] || Activity;
 
@@ -29,6 +30,11 @@ const StepService = ({ categoryKey, onSelectService, onBack }) => {
       </div>
     );
   }
+
+  const filteredServices = category.services.filter(svc =>
+    svc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    svc.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <motion.div key="step-service" variants={pageVariants} initial="enter" animate="center" exit="exit">
@@ -45,92 +51,115 @@ const StepService = ({ categoryKey, onSelectService, onBack }) => {
         اختر الخدمة من <span className="step-service-category-name">{category.name}</span>
       </h3>
 
+      {/* Instant Search Bar */}
+      <div style={{ position: 'relative', marginBottom: '1rem' }}>
+        <Search
+          size={18}
+          color="var(--text-muted)"
+          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}
+        />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="🔍 ابحث عن خدمة بالتحديد..."
+          className="booking-form-input"
+          style={{ paddingRight: '2.5rem' }}
+        />
+      </div>
+
       {/* Service Scrollable List */}
       <div className="service-list-container">
-        {category.services.map((svc, idx) => {
-          let badgeText = null;
-          let BadgeIcon = null;
+        {filteredServices.length === 0 ? (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem 0', fontSize: '0.9rem' }}>
+            لا توجد خدمة تطابق نتائج البحث.
+          </p>
+        ) : (
+          filteredServices.map((svc, idx) => {
+            let badgeText = null;
+            let BadgeIcon = null;
 
-          if (svc.durations && svc.durations.length > 0) {
-            badgeText = `${svc.durations.join('/')} دقيقة`;
-            BadgeIcon = Clock;
-          } else if (svc.types && svc.types.length > 0) {
-            badgeText = `${svc.types.length} أنواع`;
-            BadgeIcon = Tag;
-          } else if (svc.features || svc.indications || svc.focus || svc.includes) {
-            badgeText = 'برنامج مخصص';
-            BadgeIcon = Sparkles;
-          }
+            if (svc.durations && svc.durations.length > 0) {
+              badgeText = `${svc.durations.join('/')} دقيقة`;
+              BadgeIcon = Clock;
+            } else if (svc.types && svc.types.length > 0) {
+              badgeText = `${svc.types.length} أنواع متاحة`;
+              BadgeIcon = Tag;
+            } else if (svc.features || svc.indications || svc.focus || svc.includes) {
+              badgeText = 'برنامج مخصص';
+              BadgeIcon = Sparkles;
+            }
 
-          return (
-            <motion.div
-              key={svc.id}
-              className="service-row-item"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onSelectService && onSelectService(svc.id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelectService && onSelectService(svc.id);
-                }
-              }}
-            >
-              {/* Thumbnail Image with Fallback */}
-              {svc.image ? (
-                <img
-                  src={svc.image}
-                  alt={svc.name}
-                  className="service-row-thumb"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.style.display = 'none';
-                    if (e.target.nextSibling) {
-                      e.target.nextSibling.style.display = 'flex';
-                    }
-                  }}
-                />
-              ) : null}
-              <div
-                className="service-row-thumb"
-                style={{
-                  display: svc.image ? 'none' : 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+            return (
+              <motion.div
+                key={svc.id}
+                className="service-row-item"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.04 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onSelectService && onSelectService(svc.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectService && onSelectService(svc.id);
+                  }
                 }}
               >
-                <CategoryIcon size={24} color="var(--accent)" />
-              </div>
-
-              {/* Service Info */}
-              <div className="service-row-info">
-                <div className="service-row-title-row">
-                  <h4 className="service-row-title">{svc.name}</h4>
+                {/* Thumbnail Image with Fallback */}
+                {svc.image ? (
+                  <img
+                    src={svc.image}
+                    alt={svc.name}
+                    className="service-row-thumb"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                      if (e.target.nextSibling) {
+                        e.target.nextSibling.style.display = 'flex';
+                      }
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="service-row-thumb"
+                  style={{
+                    display: svc.image ? 'none' : 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <CategoryIcon size={24} color="var(--accent)" />
                 </div>
-                <p className="service-row-desc">{svc.description}</p>
-                {badgeText && (
-                  <div className="service-row-badges">
-                    <span className="service-badge">
-                      {BadgeIcon && <BadgeIcon size={12} />}
-                      <span>{badgeText}</span>
-                    </span>
-                  </div>
-                )}
-              </div>
 
-              {/* RTL Navigation Chevron */}
-              <div className="service-row-action" aria-hidden="true">
-                <ChevronLeft size={18} />
-              </div>
-            </motion.div>
-          );
-        })}
+                {/* Service Info */}
+                <div className="service-row-info">
+                  <div className="service-row-title-row">
+                    <h4 className="service-row-title">{svc.name}</h4>
+                  </div>
+                  <p className="service-row-desc">{svc.description}</p>
+                  {badgeText && (
+                    <div className="service-row-badges">
+                      <span className="service-badge">
+                        {BadgeIcon && <BadgeIcon size={12} />}
+                        <span>{badgeText}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* RTL Navigation Chevron */}
+                <div className="service-row-action" aria-hidden="true">
+                  <ChevronLeft size={18} />
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </motion.div>
   );

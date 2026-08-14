@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, MessageCircle, RefreshCw, Home, ClipboardList } from 'lucide-react';
+import { CheckCircle2, MessageCircle, RefreshCw, Home, ClipboardList, Copy, Check } from 'lucide-react';
 
 const pageVariants = {
   enter: { opacity: 0, x: -30 },
@@ -17,6 +17,8 @@ const StepDone = ({
   onReset,
   onGoHome
 }) => {
+  const [copied, setCopied] = useState(false);
+
   const formData = bookingResult?.formData || propFormData || {};
   const whatsappUrl = bookingResult?.whatsappUrl || propWhatsappUrl || '';
   const selectedCategory = bookingResult?.selectedCategory || propSelectedCategory;
@@ -35,6 +37,20 @@ const StepDone = ({
     : (formData.gender === 'female' || formData.gender === 'أنثى')
     ? 'أنثى'
     : formData.gender;
+
+  const handleCopySummary = () => {
+    let summaryText = `✨ حجز موعد في أوركيد (ORCHID) ✨\n`;
+    summaryText += `• الخدمة: ${formData.subType || serviceName}\n`;
+    if (formData.date) summaryText += `• التاريخ: ${formData.date}\n`;
+    if (formData.time) summaryText += `• الوقت: ${formData.time}\n`;
+    if (formData.duration) summaryText += `• المدة: ${formData.duration} دقيقة\n`;
+    if (formData.name) summaryText += `• الاسم: ${formData.name}\n`;
+    if (formData.phone) summaryText += `• الموبايل: ${formData.phone}\n`;
+
+    navigator.clipboard.writeText(summaryText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   return (
     <motion.div
@@ -177,11 +193,46 @@ const StepDone = ({
           target="_blank"
           rel="noreferrer"
           className="booking-whatsapp-btn"
+          style={{ marginBottom: '0.6rem' }}
         >
           <MessageCircle size={18} />
-          <span>متابعة الحجز عبر واتساب</span>
+          <span>متابعة الحجز عبر واتساب ⚡</span>
         </a>
       )}
+
+      {/* Copy Summary Button */}
+      <button
+        type="button"
+        onClick={handleCopySummary}
+        style={{
+          width: '100%',
+          padding: '0.65rem 1rem',
+          borderRadius: '0.75rem',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid var(--border-color)',
+          color: 'var(--text-main)',
+          fontSize: '0.85rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem',
+          minHeight: '42px',
+          fontFamily: 'Cairo, sans-serif'
+        }}
+      >
+        {copied ? (
+          <>
+            <Check size={16} color="#00e676" />
+            <span style={{ color: '#00e676', fontWeight: 700 }}>تم نسخ بيانات الحجز بنجاح!</span>
+          </>
+        ) : (
+          <>
+            <Copy size={16} />
+            <span>نسخ تفاصيل الحجز</span>
+          </>
+        )}
+      </button>
 
       {/* Action Buttons */}
       <div className="booking-actions-row">
