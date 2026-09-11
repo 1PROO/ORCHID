@@ -5,8 +5,72 @@ import { categories } from '../servicesData';
 import { massageCategories } from '../data/massageData';
 import {
   ArrowRight, Activity, Apple, Dumbbell, Send, Loader2,
-  ChevronRight, Sparkles, CheckCircle2, MessageCircle
+  ChevronRight, Sparkles, CheckCircle2, MessageCircle,
+  Calendar, Clock, Sun, Moon
 } from 'lucide-react';
+
+/* ─── Arabic calendar & time slots helpers ─── */
+const arabicWeekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+const arabicMonths = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+];
+
+const getUpcomingDays = (count = 14) => {
+  const days = [];
+  const today = new Date();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const isoDate = `${year}-${month}-${day}`;
+    const weekday = arabicWeekdays[d.getDay()];
+
+    let displayDayName = weekday;
+    if (i === 0) displayDayName = 'اليوم';
+    else if (i === 1) displayDayName = 'غداً';
+
+    days.push({
+      isoDate,
+      fullFormatted: `${isoDate} (${weekday})`,
+      dayNumber: d.getDate(),
+      monthName: arabicMonths[d.getMonth()],
+      displayDayName,
+      weekday,
+      isToday: i === 0,
+      isTomorrow: i === 1,
+    });
+  }
+  return days;
+};
+
+const DAY_TIME_SLOTS = [
+  '11:00 ص',
+  '12:00 م',
+  '01:00 م',
+  '02:00 م',
+  '03:00 م',
+  '04:00 م',
+];
+
+const NIGHT_TIME_SLOTS = [
+  '05:00 م',
+  '06:00 م',
+  '07:00 م',
+  '08:00 م',
+  '09:00 م',
+  '10:00 م',
+];
+
+const getTodayISO = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 /* ─── category meta ─── */
 const categoryMeta = {
@@ -40,6 +104,22 @@ const BookingPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [showCustomDate, setShowCustomDate] = useState(false);
+  const [showCustomTime, setShowCustomTime] = useState(false);
+  const upcomingDays = React.useMemo(() => getUpcomingDays(6), []);
+  const todayISO = React.useMemo(() => getTodayISO(), []);
+
+  const handleCustomDateChange = (e) => {
+    const val = e.target.value;
+    if (!val) {
+      setFormData(prev => ({ ...prev, date: '' }));
+      return;
+    }
+    const parts = val.split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    const weekday = arabicWeekdays[d.getDay()] || '';
+    setFormData(prev => ({ ...prev, date: `${val} (${weekday})` }));
+  };
 
   /* scroll to top on step change */
   useEffect(() => {
@@ -62,21 +142,43 @@ const BookingPage = () => {
   const selectedService = selectedCategory?.services.find(s => s.id === formData.serviceId);
 
   const selectCategory = (catId) => {
-    setFormData({ ...formData, categoryId: catId, serviceId: '', subType: '', duration: '' });
+    setFormData(prev => ({ ...prev, categoryId: catId, serviceId: '', subType: '', duration: '' }));
     setStep(STEPS.SERVICE);
   };
 
   const selectService = (svcId) => {
     const cat = categories.find(c => c.id === formData.categoryId);
     const svc = cat?.services.find(s => s.id === svcId);
-    const autoSubType = (svc && !svc.types) ? svc.name : '';
-    setFormData({ ...formData, serviceId: svcId, subType: autoSubType, duration: '' });
+    let autoSubType = (svc && !svc.types) ? svc.name : '';
+    let autoDuration = '';
+
+    if (svcId === 'massage') {
+      autoSubType = `${massageCategories[0].title} - ${massageCategories[0].types[0].name}`;
+      autoDuration = '60';
+    } else if (svc?.types && svc.types.length > 0) {
+      autoSubType = svc.types[0];
+    }
+    if (svc?.durations && svc.durations.length > 0 && !autoDuration) {
+      autoDuration = String(svc.durations[0]);
+    }
+
+    const defaultDate = upcomingDays[0]?.fullFormatted || '';
+    const defaultTime = '06:00 م';
+
+    setFormData(prev => ({
+      ...prev,
+      serviceId: svcId,
+      subType: autoSubType,
+      duration: autoDuration,
+      date: prev.date || defaultDate,
+      time: prev.time || defaultTime
+    }));
     setStep(STEPS.DETAILS);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const canProceedToPersonal = () => {
@@ -164,7 +266,7 @@ const BookingPage = () => {
 
   /* ─── progress bar ─── */
   const ProgressBar = () => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)', direction: 'ltr' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', width: '100%', maxWidth: '420px', margin: '0 auto clamp(1.2rem, 3vw, 2rem)', direction: 'ltr' }}>
       {stepLabels.map((label, idx) => {
         const isActive = step >= idx;
         const isCurrent = step === idx;
@@ -191,9 +293,9 @@ const BookingPage = () => {
             </div>
             {idx < stepLabels.length - 1 && (
               <div style={{
-                flex: 1, height: '2px', minWidth: '20px', maxWidth: '60px',
+                flex: 1, height: '2px', minWidth: '15px', maxWidth: '50px',
                 background: step > idx ? 'var(--gradient-accent)' : 'var(--border-color)',
-                margin: '0 0.25rem', marginBottom: '1.5rem', transition: 'background 0.3s'
+                margin: '0 0.2rem', marginBottom: '1.25rem', transition: 'background 0.3s'
               }} />
             )}
           </React.Fragment>
@@ -203,9 +305,9 @@ const BookingPage = () => {
   );
 
   const pageVariants = {
-    enter: { opacity: 0, x: -30 },
-    center: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, x: 30, transition: { duration: 0.2 } }
+    enter: { opacity: 0, y: 15 },
+    center: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.15 } }
   };
 
   return (
@@ -214,8 +316,8 @@ const BookingPage = () => {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}
-          style={{ textAlign: 'center', marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          style={{ textAlign: 'center', marginBottom: 'clamp(1.2rem, 3vw, 2rem)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
             <Sparkles size={18} color="var(--accent)" />
             <span style={{ color: 'var(--accent)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>ORCHID BOOKING</span>
           </div>
@@ -227,7 +329,7 @@ const BookingPage = () => {
 
         {step < STEPS.DONE && <ProgressBar />}
 
-        <motion.div className="glass-card" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem)', overflow: 'hidden' }}
+        <motion.div className="glass-card booking-card"
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
 
           <AnimatePresence mode="wait">
@@ -383,42 +485,49 @@ const BookingPage = () => {
                         <div style={{ marginBottom: '1.25rem' }}>
                           <label style={{ ...labelStyle, fontSize: '1rem', marginBottom: '0.75rem' }}>اختر قسم ونوع المساج المطلوب:</label>
                           
-                          {/* Horizontal Scrollable Tabs */}
+                          {/* Symmetrical 3-Column Tabs for Massage Categories */}
                           <div style={{ 
-                            display: 'flex', 
-                            gap: '0.5rem', 
-                            overflowX: 'auto', 
-                            paddingBottom: '0.75rem',
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: '0.4rem', 
                             marginBottom: '1.25rem',
-                            scrollbarWidth: 'thin',
-                            WebkitOverflowScrolling: 'touch'
+                            width: '100%'
                           }}>
                             {massageCategories.map(cat => {
                               const isActive = activeMassageCatId === cat.id;
+                              const shortLabel = cat.id === 'relaxation' ? 'استرخاء' : cat.id === 'therapeutic' ? 'علاجي' : 'تايلاندي';
                               return (
                                 <button
                                   key={cat.id}
                                   type="button"
-                                  onClick={() => setActiveMassageCatId(cat.id)}
+                                  className="touch-chip"
+                                  onClick={() => {
+                                    setActiveMassageCatId(cat.id);
+                                    const firstType = cat.types[0];
+                                    if (firstType) {
+                                      setFormData(prev => ({ ...prev, subType: `${cat.title} - ${firstType.name}` }));
+                                    }
+                                  }}
                                   style={{
-                                    padding: '0.55rem 1rem',
-                                    borderRadius: '2rem',
-                                    border: isActive ? '1px solid var(--accent)' : '1px solid var(--border-color)',
-                                    background: isActive ? 'var(--gradient-accent)' : 'rgba(255,255,255,0.03)',
+                                    padding: '0.65rem 0.25rem',
+                                    borderRadius: '0.75rem',
+                                    border: isActive ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                    background: isActive ? 'var(--gradient-accent)' : 'var(--bg-card)',
                                     color: isActive ? '#fff' : 'var(--text-muted)',
-                                    fontSize: '0.85rem',
+                                    fontSize: 'clamp(0.78rem, 2.2vw, 0.88rem)',
                                     fontWeight: isActive ? 700 : 500,
-                                    whiteSpace: 'nowrap',
                                     cursor: 'pointer',
                                     display: 'flex',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: '0.4rem',
-                                    transition: 'all 0.25s ease',
-                                    boxShadow: isActive ? '0 4px 15px rgba(0, 212, 255, 0.25)' : 'none'
+                                    justifyContent: 'center',
+                                    gap: '0.2rem',
+                                    boxShadow: isActive ? '0 0 12px rgba(0, 212, 255, 0.3)' : 'none',
+                                    width: '100%'
                                   }}
                                 >
-                                  <span>{cat.icon}</span>
-                                  <span>{cat.title.replace('قسم ', '')}</span>
+                                  <span style={{ fontSize: '1.1rem' }}>{cat.icon}</span>
+                                  <span style={{ whiteSpace: 'nowrap' }}>{shortLabel}</span>
                                 </button>
                               );
                             })}
@@ -445,15 +554,14 @@ const BookingPage = () => {
                                   </span>
                                 </div>
 
-                                <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
+                                <div style={{ display: 'grid', gap: '0.85rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', width: '100%' }}>
                                   {activeCat.types.map(t => {
                                     const fullTypeName = `${activeCat.title} - ${t.name}`;
                                     const isSelected = formData.subType === fullTypeName || formData.subType === t.name;
                                     return (
-                                      <motion.div
+                                      <div
                                         key={t.id}
-                                        whileHover={{ y: -4 }}
-                                        onClick={() => setFormData({ ...formData, subType: fullTypeName })}
+                                        onClick={() => setFormData(prev => ({ ...prev, subType: fullTypeName }))}
                                         style={{
                                           borderRadius: '0.85rem',
                                           overflow: 'hidden',
@@ -522,7 +630,7 @@ const BookingPage = () => {
                                             {isSelected ? '✓ تم تحديد هذا النوع' : 'اختر هذا النوع'}
                                           </button>
                                         </div>
-                                      </motion.div>
+                                      </div>
                                     );
                                   })}
                                 </div>
@@ -533,20 +641,20 @@ const BookingPage = () => {
                       ) : selectedService.types ? (
                         <div>
                           <label style={labelStyle}>نوع الجلسة</label>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 140px), 1fr))', gap: '0.5rem' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
                             {selectedService.types.map(t => (
-                              <motion.div key={t} whileTap={{ scale: 0.95 }}
-                                onClick={() => setFormData({ ...formData, subType: t })}
+                              <button key={t} type="button" className="touch-chip"
+                                onClick={() => setFormData(prev => ({ ...prev, subType: t }))}
                                 style={{
-                                  padding: '0.6rem 0.5rem', textAlign: 'center', borderRadius: '0.6rem', cursor: 'pointer',
+                                  padding: '0.7rem 0.5rem', textAlign: 'center', borderRadius: '0.6rem', cursor: 'pointer',
                                   fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
-                                  background: formData.subType === t ? 'rgba(0, 212, 255, 0.12)' : 'transparent',
+                                  background: formData.subType === t ? 'rgba(0, 212, 255, 0.14)' : 'var(--bg-card)',
                                   border: formData.subType === t ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                                   color: formData.subType === t ? 'var(--accent)' : 'var(--text-main)',
-                                  fontWeight: formData.subType === t ? 700 : 400, transition: 'all 0.2s'
+                                  fontWeight: formData.subType === t ? 700 : 400
                                 }}>
                                 {t}
-                              </motion.div>
+                              </button>
                             ))}
                           </div>
                         </div>
@@ -557,31 +665,281 @@ const BookingPage = () => {
                           <label style={labelStyle}>المدة</label>
                           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${selectedService.durations.length}, 1fr)`, gap: '0.5rem' }}>
                             {selectedService.durations.map(d => (
-                              <motion.div key={d} whileTap={{ scale: 0.95 }}
-                                onClick={() => setFormData({ ...formData, duration: String(d) })}
+                              <button key={d} type="button" className="touch-chip"
+                                onClick={() => setFormData(prev => ({ ...prev, duration: String(d) }))}
                                 style={{
-                                  textAlign: 'center', padding: '0.65rem', borderRadius: '0.6rem', cursor: 'pointer',
-                                  background: formData.duration == d ? 'rgba(0, 212, 255, 0.12)' : 'transparent',
+                                  textAlign: 'center', padding: '0.7rem 0.5rem', borderRadius: '0.6rem', cursor: 'pointer',
+                                  background: formData.duration == d ? 'rgba(0, 212, 255, 0.14)' : 'var(--bg-card)',
                                   border: formData.duration == d ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                                   color: formData.duration == d ? 'var(--accent)' : 'var(--text-main)',
-                                  fontWeight: formData.duration == d ? 700 : 400, transition: 'all 0.2s', fontSize: '0.95rem'
+                                  fontWeight: formData.duration == d ? 700 : 400, fontSize: '0.95rem'
                                 }}>
                                 {d} دقيقة
-                              </motion.div>
+                              </button>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '0.75rem' }}>
+                      {/* ─── Smart Date & Time Selection ─── */}
+                      <div className="smart-selection-box" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.25rem',
+                        padding: '1.1rem',
+                        borderRadius: '1rem',
+                        border: '1px solid var(--border-color)',
+                        background: 'rgba(255, 255, 255, 0.02)'
+                      }}>
+
+                        {/* 1. Date Picker */}
                         <div>
-                          <label style={labelStyle}>التاريخ المفضل</label>
-                          <input type="date" name="date" required value={formData.date} onChange={handleInputChange} onInvalid={handleInvalid} onInput={setArabicValidation} style={inputStyle} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.7rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                            <label style={{ ...labelStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem' }}>
+                              <Calendar size={16} color="var(--accent)" /> اختر اليوم المناسب:
+                            </label>
+                            {formData.date && (
+                              <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700, background: 'rgba(0, 212, 255, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '1rem' }}>
+                                ✓ {formData.date}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Days Grid - 3 columns, perfectly responsive */}
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: '0.5rem',
+                            width: '100%'
+                          }}>
+                            {upcomingDays.map((day) => {
+                              const isSelected = formData.date === day.fullFormatted || formData.date === day.isoDate;
+                              return (
+                                <button
+                                  key={day.isoDate}
+                                  type="button"
+                                  className="day-card-btn"
+                                  onClick={() => {
+                                    setFormData(prev => ({ ...prev, date: day.fullFormatted }));
+                                    setShowCustomDate(false);
+                                  }}
+                                  style={{
+                                    padding: '0.75rem 0.35rem',
+                                    borderRadius: '0.85rem',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                    background: isSelected
+                                      ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.22) 0%, rgba(224, 64, 251, 0.18) 100%)'
+                                      : 'var(--bg-card)',
+                                    boxShadow: isSelected ? '0 0 16px rgba(0, 212, 255, 0.35)' : 'none',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.2rem',
+                                    width: '100%'
+                                  }}
+                                >
+                                  <span style={{
+                                    fontSize: '0.75rem',
+                                    fontWeight: isSelected ? 700 : 600,
+                                    color: isSelected ? 'var(--accent)' : (day.isToday || day.isTomorrow ? 'var(--accent-light)' : 'var(--text-muted)')
+                                  }}>
+                                    {day.displayDayName}
+                                  </span>
+                                  <span style={{
+                                    fontSize: '1.25rem',
+                                    fontWeight: 800,
+                                    color: isSelected ? '#fff' : 'var(--text-main)',
+                                    lineHeight: 1.2
+                                  }}>
+                                    {day.dayNumber}
+                                  </span>
+                                  <span style={{
+                                    fontSize: '0.7rem',
+                                    color: isSelected ? '#fff' : 'var(--text-muted)'
+                                  }}>
+                                    {day.monthName}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Custom Date Option Toggle */}
+                          <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => setShowCustomDate(!showCustomDate)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--accent)',
+                                fontSize: '0.82rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                padding: '0.2rem 0',
+                                textDecoration: 'underline'
+                              }}
+                            >
+                              <Calendar size={13} />
+                              {showCustomDate ? 'إخفاء التقويم المخصص' : 'هل تريد تاريخاً لاحقاً؟ اختر من التقويم...'}
+                            </button>
+                          </div>
+
+                          {showCustomDate && (
+                            <div style={{ marginTop: '0.6rem' }}>
+                              <input
+                                type="date"
+                                min={todayISO}
+                                onChange={handleCustomDateChange}
+                                style={inputStyle}
+                              />
+                            </div>
+                          )}
                         </div>
+
+                        {/* Divider */}
+                        <div style={{ height: '1px', background: 'var(--border-color)', opacity: 0.6 }} />
+
+                        {/* 2. Time Slot Picker */}
                         <div>
-                          <label style={labelStyle}>الساعة المفضلة</label>
-                          <input type="time" name="time" required value={formData.time} onChange={handleInputChange} onInvalid={handleInvalid} onInput={setArabicValidation} style={inputStyle} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                            <label style={{ ...labelStyle, margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem' }}>
+                              <Clock size={16} color="var(--accent)" /> اختر الساعة المفضلة:
+                            </label>
+                            {formData.time && (
+                              <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 700, background: 'rgba(0, 212, 255, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '1rem' }}>
+                                ✓ {formData.time}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Daytime slots - 3 columns, perfectly fills 100% width */}
+                          <div style={{ marginBottom: '0.85rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem' }}>
+                              <Sun size={14} color="#f59e0b" />
+                              <span>الفترة النهارية</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.45rem', width: '100%' }}>
+                              {DAY_TIME_SLOTS.map(slot => {
+                                const isSelected = formData.time === slot;
+                                return (
+                                  <button
+                                    key={slot}
+                                    type="button"
+                                    className="time-slot-btn"
+                                    onClick={() => {
+                                      setFormData(prev => ({ ...prev, time: slot }));
+                                      setShowCustomTime(false);
+                                    }}
+                                    style={{
+                                      padding: '0.65rem 0.3rem',
+                                      borderRadius: '0.6rem',
+                                      border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                      background: isSelected ? 'var(--gradient-accent)' : 'var(--bg-card)',
+                                      color: isSelected ? '#fff' : 'var(--text-main)',
+                                      fontWeight: isSelected ? 700 : 500,
+                                      fontSize: '0.88rem',
+                                      cursor: 'pointer',
+                                      boxShadow: isSelected ? '0 0 12px rgba(0, 212, 255, 0.3)' : 'none',
+                                      textAlign: 'center',
+                                      width: '100%'
+                                    }}
+                                  >
+                                    {slot}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Evening slots - 3 columns, perfectly fills 100% width */}
+                          <div style={{ marginBottom: '0.85rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.45rem' }}>
+                              <Moon size={14} color="#818cf8" />
+                              <span>الفترة المسائية</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.45rem', width: '100%' }}>
+                              {NIGHT_TIME_SLOTS.map(slot => {
+                                const isSelected = formData.time === slot;
+                                return (
+                                  <button
+                                    key={slot}
+                                    type="button"
+                                    className="time-slot-btn"
+                                    onClick={() => {
+                                      setFormData(prev => ({ ...prev, time: slot }));
+                                      setShowCustomTime(false);
+                                    }}
+                                    style={{
+                                      padding: '0.65rem 0.3rem',
+                                      borderRadius: '0.6rem',
+                                      border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                      background: isSelected ? 'var(--gradient-accent)' : 'var(--bg-card)',
+                                      color: isSelected ? '#fff' : 'var(--text-main)',
+                                      fontWeight: isSelected ? 700 : 500,
+                                      fontSize: '0.88rem',
+                                      cursor: 'pointer',
+                                      boxShadow: isSelected ? '0 0 12px rgba(0, 212, 255, 0.3)' : 'none',
+                                      textAlign: 'center',
+                                      width: '100%'
+                                    }}
+                                  >
+                                    {slot}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Custom Time Option Toggle */}
+                          <div style={{ marginTop: '0.35rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => setShowCustomTime(!showCustomTime)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--accent)',
+                                fontSize: '0.82rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                padding: '0.2rem 0',
+                                textDecoration: 'underline'
+                              }}
+                            >
+                              <Clock size={13} />
+                              {showCustomTime ? 'إخفاء خيار الوقت المخصص' : 'هل تفضل ساعة محددة أخرى؟ اختر وقتاً مخصصاً...'}
+                            </button>
+                            {showCustomTime && (
+                              <div style={{ marginTop: '0.6rem' }}>
+                                <input
+                                  type="time"
+                                  name="time"
+                                  value={formData.time.includes('ص') || formData.time.includes('م') ? '' : formData.time}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (!val) return;
+                                    const [hStr, mStr] = val.split(':');
+                                    let h = parseInt(hStr, 10);
+                                    const period = h >= 12 ? 'م' : 'ص';
+                                    if (h === 0) h = 12;
+                                    else if (h > 12) h -= 12;
+                                    const formatted = `${String(h).padStart(2, '0')}:${mStr} ${period}`;
+                                    setFormData(prev => ({ ...prev, time: formatted }));
+                                  }}
+                                  style={inputStyle}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
+
                       </div>
                     </>
                   )}
@@ -610,17 +968,17 @@ const BookingPage = () => {
                         <label style={labelStyle}>الخبرة الرياضية</label>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
                           {['مبتدئ', 'متوسط', 'متقدم'].map(lvl => (
-                            <motion.div key={lvl} whileTap={{ scale: 0.95 }}
-                              onClick={() => setFormData({ ...formData, experience: lvl })}
+                            <button key={lvl} type="button" className="touch-chip"
+                              onClick={() => setFormData(prev => ({ ...prev, experience: lvl }))}
                               style={{
-                                textAlign: 'center', padding: '0.6rem', borderRadius: '0.6rem', cursor: 'pointer',
-                                background: formData.experience === lvl ? 'rgba(0, 212, 255, 0.12)' : 'transparent',
+                                textAlign: 'center', padding: '0.65rem 0.5rem', borderRadius: '0.6rem', cursor: 'pointer',
+                                background: formData.experience === lvl ? 'rgba(0, 212, 255, 0.14)' : 'var(--bg-card)',
                                 border: formData.experience === lvl ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                                 color: formData.experience === lvl ? 'var(--accent)' : 'var(--text-main)',
-                                fontWeight: formData.experience === lvl ? 700 : 400, transition: 'all 0.2s', fontSize: '0.9rem'
+                                fontWeight: formData.experience === lvl ? 700 : 400, fontSize: '0.9rem'
                               }}>
                               {lvl}
-                            </motion.div>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -628,11 +986,33 @@ const BookingPage = () => {
                   )}
                 </div>
 
+                {/* Validation helper guide */}
+                {!canProceedToPersonal() && formData.categoryId === 'therapy' && (
+                  <div style={{
+                    marginTop: '1.25rem',
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: '0.6rem',
+                    background: 'rgba(255, 183, 77, 0.08)',
+                    border: '1px solid rgba(255, 183, 77, 0.3)',
+                    color: '#ffb74d',
+                    fontSize: '0.82rem',
+                    lineHeight: 1.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem'
+                  }}>
+                    <span>⚠️ لاستكمال الحجز:</span>
+                    <span>
+                      {!formData.subType ? 'يرجى اختيار نوع الجلسة' : !formData.date ? 'يرجى تحديد اليوم' : !formData.time ? 'يرجى اختيار الساعة' : ''}
+                    </span>
+                  </div>
+                )}
+
                 <motion.button type="button" onClick={goToPersonal}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                   disabled={!canProceedToPersonal()}
                   style={{
-                    width: '100%', marginTop: '1.5rem', padding: '0.9rem',
+                    width: '100%', marginTop: '1.25rem', padding: '0.9rem',
                     borderRadius: '0.75rem', fontWeight: 700, fontSize: '1rem',
                     background: canProceedToPersonal() ? 'var(--gradient-accent)' : 'var(--bg-card)',
                     color: canProceedToPersonal() ? '#fff' : 'var(--text-muted)',
@@ -640,7 +1020,7 @@ const BookingPage = () => {
                     border: canProceedToPersonal() ? 'none' : '1px solid var(--border-color)',
                     transition: 'all 0.3s'
                   }}>
-                  التالي — بياناتك الشخصية
+                  {canProceedToPersonal() ? '✓ التالي — بياناتك الشخصية' : 'التالي — بياناتك الشخصية'}
                 </motion.button>
               </motion.div>
             )}
@@ -666,18 +1046,18 @@ const BookingPage = () => {
                     <label style={labelStyle}>الجنس *</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
                       {[{ label: 'ذكر', icon: '♂', color: '#00d4ff', bg: 'rgba(0, 212, 255, 0.12)' }, { label: 'أنثى', icon: '♀', color: '#e040fb', bg: 'rgba(224, 64, 251, 0.12)' }].map(g => (
-                        <motion.div key={g.label} whileTap={{ scale: 0.95 }}
-                          onClick={() => setFormData({ ...formData, gender: g.label })}
+                        <button key={g.label} type="button" className="touch-chip"
+                          onClick={() => setFormData(prev => ({ ...prev, gender: g.label }))}
                           style={{
                             textAlign: 'center', padding: '0.75rem', borderRadius: '0.6rem', cursor: 'pointer',
-                            background: formData.gender === g.label ? g.bg : 'transparent',
+                            background: formData.gender === g.label ? g.bg : 'var(--bg-card)',
                             border: formData.gender === g.label ? `2px solid ${g.color}` : '1px solid var(--border-color)',
                             color: formData.gender === g.label ? g.color : 'var(--text-main)',
-                            fontWeight: formData.gender === g.label ? 700 : 400, transition: 'all 0.2s', fontSize: '1rem',
+                            fontWeight: formData.gender === g.label ? 700 : 400, fontSize: '1rem',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
                           }}>
                           <span style={{ fontSize: '1.2rem' }}>{g.icon}</span> {g.label}
-                        </motion.div>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -736,7 +1116,13 @@ const BookingPage = () => {
                   </motion.a>
 
                   <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    onClick={() => { setStep(STEPS.CATEGORY); setWhatsappUrl(''); setFormData({ categoryId: '', serviceId: '', subType: '', duration: '', date: '', time: '', name: '', phone: '', gender: '', notes: '', weight: '', height: '', goal: '', injuries: '', experience: '' }); }}
+                    onClick={() => {
+                      setStep(STEPS.CATEGORY);
+                      setWhatsappUrl('');
+                      setShowCustomDate(false);
+                      setShowCustomTime(false);
+                      setFormData({ categoryId: '', serviceId: '', subType: '', duration: '', date: '', time: '', name: '', phone: '', gender: '', notes: '', weight: '', height: '', goal: '', injuries: '', experience: '' });
+                    }}
                     style={{
                       padding: '0.75rem 1.5rem', borderRadius: '0.75rem', fontWeight: 600,
                       background: 'rgba(0, 212, 255, 0.1)', border: '1px solid var(--accent)',
@@ -764,6 +1150,39 @@ const BookingPage = () => {
         input:focus, select:focus, textarea:focus {
           border-color: var(--accent) !important;
           box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15), 0 0 0 3px rgba(224, 64, 251, 0.05) !important;
+        }
+
+        /* Touch & Mobile UX perfection */
+        .touch-chip, .time-slot-btn, .day-card-btn {
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+          transition: transform 0.1s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .touch-chip:active, .time-slot-btn:active, .day-card-btn:active {
+          transform: scale(0.95);
+        }
+        @media (max-width: 600px) {
+          .booking-card {
+            padding: 1.1rem 0.75rem !important;
+            border-radius: 1.15rem !important;
+          }
+          .smart-selection-box {
+            padding: 0.85rem 0.6rem !important;
+            gap: 1rem !important;
+          }
+          .day-card-btn {
+            padding: 0.65rem 0.25rem !important;
+          }
+          .day-card-btn span:nth-child(2) {
+            font-size: 1.15rem !important;
+          }
+          .time-slot-btn {
+            padding: 0.6rem 0.2rem !important;
+            font-size: 0.82rem !important;
+          }
         }
       `}</style>
     </section>

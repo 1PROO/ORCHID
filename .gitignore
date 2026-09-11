@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local tools & scripts
+.freebuff
+*.bat
+*.ps1
