@@ -82,6 +82,19 @@ const categoryMeta = {
 const STEPS = { CATEGORY: 0, SERVICE: 1, DETAILS: 2, PERSONAL: 3, DONE: 4 };
 const stepLabels = ['القسم', 'الخدمة', 'التفاصيل', 'بياناتك'];
 
+const MASSAGE_CATEGORY_SHORT_LABELS = {
+  relaxation: 'استرخاء',
+  therapeutic: 'علاجي',
+  head_face: 'الرأس والوجه',
+  extremities: 'القدمين والأطراف',
+  sports_recovery: 'رياضي واستشفاء',
+  full_body: 'الجسم بالكامل',
+  body_shaping: 'تنسيق القوام',
+  cellulite_skincare: 'السيلوليت',
+  full_body_care: 'عناية وتقشير',
+  vip_experiences: 'تجارب VIP'
+};
+
 /* ─── Arabic validation helper ─── */
 const setArabicValidation = (e) => {
   e.target.setCustomValidity('');
@@ -495,7 +508,7 @@ const BookingPage = () => {
                           }}>
                             {massageCategories.map(cat => {
                               const isActive = activeMassageCatId === cat.id;
-                              const shortLabel = cat.id === 'relaxation' ? 'استرخاء' : cat.id === 'therapeutic' ? 'علاجي' : 'تايلاندي';
+                              const shortLabel = MASSAGE_CATEGORY_SHORT_LABELS[cat.id] || cat.badge || cat.title.replace(/^قسم (مساج )?/, '');
                               return (
                                 <button
                                   key={cat.id}
@@ -513,21 +526,33 @@ const BookingPage = () => {
                                     borderRadius: '0.75rem',
                                     border: isActive ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                                     background: isActive ? 'var(--gradient-accent)' : 'var(--bg-card)',
-                                    color: isActive ? '#fff' : 'var(--text-muted)',
-                                    fontSize: 'clamp(0.78rem, 2.2vw, 0.88rem)',
+                                    color: isActive ? '#fff' : 'var(--text-main)',
+                                    fontSize: 'clamp(0.74rem, 2vw, 0.85rem)',
                                     fontWeight: isActive ? 700 : 500,
                                     cursor: 'pointer',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '0.2rem',
+                                    gap: '0.25rem',
+                                    minHeight: '68px',
                                     boxShadow: isActive ? '0 0 12px rgba(0, 212, 255, 0.3)' : 'none',
                                     width: '100%'
                                   }}
                                 >
-                                  <span style={{ fontSize: '1.1rem' }}>{cat.icon}</span>
-                                  <span style={{ whiteSpace: 'nowrap' }}>{shortLabel}</span>
+                                  <span style={{ fontSize: '1.15rem' }}>{cat.icon}</span>
+                                  <span style={{ 
+                                    lineHeight: 1.25, 
+                                    textAlign: 'center',
+                                    whiteSpace: 'normal',
+                                    wordBreak: 'break-word',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden'
+                                  }}>
+                                    {shortLabel}
+                                  </span>
                                 </button>
                               );
                             })}
